@@ -1,0 +1,17 @@
+# Local env and secrets
+.env
+Secrets/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Mac / editor
+.DS_Store
+.vscode/
+
+# Generated artifacts
+out/
+/tmp/
