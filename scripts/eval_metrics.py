@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import os
 import json
 import math
 from pathlib import Path
@@ -57,9 +58,36 @@ def main():
     p.add_argument("--eval", default="eval/queries.jsonl")
     p.add_argument("--k", type=int, nargs="*", default=[1, 3, 5])
     p.add_argument("--model", default="text-embedding-3-large")
+    p.add_argument("--prefer-visual", action="store_true", help="Upweight VisualCaption/VisualFact types in ranking")
+    p.add_argument("--type-weights", default=None, help="Comma list, e.g., Text=1,VisualCaption=1.1,VisualFact=1.05")
     args = p.parse_args()
 
     items = load_ndjson(Path(args.index))
+    # Weights by type
+    type_weights = {"Text": 1.0, "VisualCaption": 1.0, "VisualFact": 1.0, "Image": 0.95, "Table": 1.0}
+    if args.prefer_visual:
+        type_weights.update({"VisualCaption": 1.1, "VisualFact": 1.05})
+    if args.type_weights:
+        for tok in args.type_weights.split(','):
+            if not tok.strip():
+                continue
+            if '=' in tok:
+                k, v = tok.split('=', 1)
+                try:
+                    type_weights[k.strip()] = float(v)
+                except Exception:
+                    pass
+    # Tag weights via env or defaults
+    tag_weights_env = os.environ.get('TAG_WEIGHTS')
+    tag_weights = {"Canvas": 1.06, "Assessment": 1.05, "Diagram": 1.04, "Pillar": 1.06, "Layer": 1.05}
+    if tag_weights_env:
+        for tok in tag_weights_env.split(','):
+            if '=' in tok:
+                k, v = tok.split('=', 1)
+                try:
+                    tag_weights[k.strip()] = float(v)
+                except Exception:
+                    pass
     id_to_vec: Dict[int, List[float]] = {it["id"]: it["vector"] for it in items}
 
     eval_recs = []
@@ -84,7 +112,17 @@ def main():
         scores = []
         for it in items:
             sim = cosine_sim(qv, it["vector"])  # type: ignore
-            scores.append((sim, it["id"]))
+            # apply weights
+            m = it.get("meta", {})
+            t = m.get("type")
+            tw = type_weights.get(t, 1.0)
+            tagw = 1.0
+            tags = m.get('tags') or []
+            if isinstance(tags, list) and tags:
+                for tg in tags:
+                    tagw = max(tagw, tag_weights.get(tg, 1.0))
+            s = sim * tw * tagw
+            scores.append((s, it["id"]))
         scores.sort(reverse=True)
         ranked_ids = [id for _, id in scores]
 

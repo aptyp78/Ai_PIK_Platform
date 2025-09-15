@@ -47,7 +47,10 @@ def answer_with_openai(query: str, contexts: List[dict], chat_model: str = "gpt-
     ctx_parts = []
     for i, c in enumerate(contexts, start=1):
         meta = c.get("meta", {})
-        header = f"[CTX {i}] file={meta.get('filename')} page={meta.get('page')} id={c.get('id')} sim={c.get('sim'):.3f}"
+        header = (
+            f"[CTX {i}] type={meta.get('type')} file={meta.get('filename')} page={meta.get('page')}"
+            f" region={meta.get('region_id')} id={c.get('id')} sim={c.get('sim'):.3f}"
+        )
         text = c.get("text", "").strip()
         ctx_parts.append(header + "\n" + text)
     ctx = "\n\n".join(ctx_parts)

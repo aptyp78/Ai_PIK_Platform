@@ -112,3 +112,8 @@ This document fixes the target technology stack for building a multimodal retrie
 Notes:
 - The stack is compatible with current repository utilities (`scripts/rebuild_index.py`, `scripts/build_qa.py`, etc.). Adding visual extraction scripts (`visual_extract.py`) and hybrid retrieval (tag boosts, optional reranker) completes the extended design.
 
+Additional Implementation Notes (Visual)
+- Visual review HTML: generated at `eval/visual_review.html` via `scripts/generate_visual_review.py` (lists region images, captions, struct type, facts link).
+- Region artifacts: under `out/visual/{regions_detect|cv_regions}/<page>/regions/region-*.{png,caption.txt,struct.json,facts.jsonl}` with provenance (`bbox`, `region_id`).
+- Lightweight CV segmentation: `scripts/cv_segment.py` splits rendered pages (`scripts/render_pages.py`) into regions using morphology + contours; then `scripts/analyze_detected_regions.py` runs LLM extraction per region.
+- Grounded‑SAM(2) prep: `scripts/grounded_sam_pipeline.py` contains integration skeleton for GroundingDINO + SAM/SAM‑2; configure weights and switch on when ready.
