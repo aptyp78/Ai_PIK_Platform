@@ -45,7 +45,19 @@ def collect_regions(root: Path):
     return pages
 
 
-def render_html(out: Path, datasets):
+def _img_tag(path: str, inline: bool) -> str:
+    if not inline:
+        return f"<img src='{html.escape(path)}'/>"
+    try:
+        import base64
+        data = Path(path).read_bytes()
+        b64 = base64.b64encode(data).decode("utf-8")
+        return f"<img src='data:image/png;base64,{b64}'/>"
+    except Exception:
+        return "<div class='meta'>(image unavailable)</div>"
+
+
+def render_html(out: Path, datasets, inline_images: bool = False):
     with open(out, "w", encoding="utf-8") as f:
         f.write("<!doctype html><meta charset='utf-8'><title>Visual Review</title>")
         f.write("<style>body{font-family:sans-serif} .grid{display:grid;grid-template-columns:320px 1fr;gap:16px;margin:16px 0;border-top:1px solid #ddd;padding-top:16px} img{max-width:300px;border:1px solid #ccc} .meta{color:#555;font-size:12px} .cap{margin:8px 0}</style>")
@@ -59,7 +71,9 @@ def render_html(out: Path, datasets):
                 for r in pages[page]:
                     f.write("<div class='grid'>")
                     if r.get("png_path"):
-                        f.write(f"<div><img src='{html.escape(r['png_path'])}'/><div class='meta'>{html.escape(r['png_path'])}</div></div>")
+                        f.write("<div>")
+                        f.write(_img_tag(r["png_path"], inline_images))
+                        f.write(f"<div class='meta'>{html.escape(r['png_path'])}</div></div>")
                     else:
                         f.write("<div><div class='meta'>(no image)</div></div>")
                     f.write("<div>")
@@ -78,13 +92,14 @@ def main():
     ap.add_argument("--regions-detect", default="out/visual/regions_detect")
     ap.add_argument("--regions-cv", default="out/visual/cv_regions")
     ap.add_argument("--regions-frames", default="out/visual/cv_frames")
+    ap.add_argument("--inline", action="store_true", help="Embed images into HTML as base64 to make it self-contained")
     args = ap.parse_args()
 
     pages = collect_regions(Path(args.pages_dir))
     reg_detect = collect_regions(Path(args.regions_detect))
     reg_cv = collect_regions(Path(args.regions_cv))
     reg_frames = collect_regions(Path(args.regions_frames))
-    render_html(Path(args.out), [("CV Regions (Playbook)", reg_cv), ("CV Regions (Frames)", reg_frames), ("Detected Regions", reg_detect)])
+    render_html(Path(args.out), [("CV Regions (Playbook)", reg_cv), ("CV Regions (Frames)", reg_frames), ("Detected Regions", reg_detect)], inline_images=args.inline)
 
 
 if __name__ == "__main__":
