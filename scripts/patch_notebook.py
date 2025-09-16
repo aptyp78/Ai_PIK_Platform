@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import re
+import subprocess
 
 NB_PATH = Path('notebooks/Grounded_DINO_SAM2_Detection.ipynb')
 
@@ -149,6 +150,41 @@ print('Report to GCS:', REPORT_TO_GCS, 'Bucket:', GCS_BUCKET, 'Run tag:', RUN_TA
                 lines = src.splitlines(True)
                 lines = lines[:1] + ['require_start()\n', '\n'] + lines[1:]
                 c['source'] = lines
+
+    # Stamp current git commit into title and NOTEBOOK_VERSION
+    try:
+        sha = subprocess.check_output(['git','rev-parse','--short','HEAD'], text=True).strip()
+    except Exception:
+        sha = ''
+
+    if sha:
+        # Update top markdown title line `— commit <sha>`
+        for c in cells:
+            if c.get('cell_type') == 'markdown':
+                src = ''.join(c.get('source') or [])
+                if 'GroundedDINO + SAM' in src:
+                    # replace if present
+                    new = re.sub(r'(— commit )[0-9a-fA-F]{7,}', lambda m: m.group(1)+sha, src)
+                    if new == src:
+                        # append to first header line
+                        lines = src.splitlines(True)
+                        if lines and lines[0].lstrip().startswith('#'):
+                            if '— commit' in lines[0]:
+                                lines[0] = re.sub(r'(— commit )[^\s]+', r'\1'+sha, lines[0])
+                            else:
+                                lines[0] = lines[0].rstrip()+f' — commit {sha}\n'
+                            new = ''.join(lines)
+                    c['source'] = new.splitlines(True)
+                    break
+
+        # Update NOTEBOOK_VERSION assignment
+        for c in cells:
+            if c.get('cell_type') == 'code':
+                src = ''.join(c.get('source') or [])
+                if 'NOTEBOOK_VERSION' in src:
+                    new = re.sub(r"NOTEBOOK_VERSION\s*=\s*['\"]([^'\"]*)['\"]", f"NOTEBOOK_VERSION = '{sha}'", src)
+                    c['source'] = new.splitlines(True)
+                    break
 
     nb['cells'] = cells
     # Sanitize metadata for GitHub renderer: remove widget state blob
