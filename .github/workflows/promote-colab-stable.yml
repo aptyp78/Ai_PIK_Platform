@@ -1,0 +1,36 @@
+name: Promote notebook to colab-stable
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or ref to promote (default: main)'
+        required: false
+        default: 'main'
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Compute target SHA
+        id: tgt
+        run: |
+          set -e
+          REF="${{ inputs.ref }}"
+          if [ -z "$REF" ]; then REF=main; fi
+          git fetch origin "$REF"
+          SHA=$(git rev-parse "origin/$REF")
+          echo "ref=$REF" >> $GITHUB_OUTPUT
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
+          echo "Promoting ref=$REF sha=$SHA"
+      - name: Move colab-stable to target
+        run: |
+          git push origin "${{ steps.tgt.outputs.sha }}:refs/heads/colab-stable"

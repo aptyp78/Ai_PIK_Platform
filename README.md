@@ -4,7 +4,9 @@
 
 Open the GroundedDINO + SAM detection notebook in Colab:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aptyp78/PIKAi/blob/colab-latest/notebooks/Grounded_DINO_SAM2_Detection.ipynb)
+[![Open In Colab — Latest](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aptyp78/PIKAi/blob/colab-latest/notebooks/Grounded_DINO_SAM2_Detection.ipynb)
+
+[![Open In Colab — Stable](https://img.shields.io/badge/Colab-Stable-blue?logo=google-colab&logoColor=white)](https://colab.research.google.com/github/aptyp78/PIKAi/blob/colab-stable/notebooks/Grounded_DINO_SAM2_Detection.ipynb)
 
 Docs:
 - Visual pipeline setup: `docs/GROUNDED_SAM_SETUP.md`
