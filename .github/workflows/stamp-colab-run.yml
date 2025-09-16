@@ -1,0 +1,59 @@
+name: Stamp Colab Run Time
+
+on:
+  workflow_run:
+    workflows:
+      - update-colab-latest
+      - promote-colab-stable
+    types:
+      - completed
+
+permissions:
+  contents: write
+
+jobs:
+  update-readme:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update timestamp in README
+        env:
+          WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+          UPDATED_AT: ${{ github.event.workflow_run.updated_at }}
+        run: |
+          echo "Triggered by workflow: $WORKFLOW_NAME at $UPDATED_AT"
+          marker="COLAB_LATEST_RUN"
+          low=$(echo "$WORKFLOW_NAME" | tr 'A-Z' 'a-z')
+          if echo "$low" | grep -q "stable"; then marker="COLAB_STABLE_RUN"; fi
+          python3 - <<PY
+import os, re
+pth = 'README.md'
+txt = open(pth,'r',encoding='utf-8').read()
+marker = os.environ.get('marker','COLAB_LATEST_RUN')
+stamp  = os.environ.get('UPDATED_AT','')
+pattern = rf"(<!-- {marker}:START -->)(.*?)(<!-- {marker}:END -->)"
+new = re.sub(pattern, rf"\\1{stamp}\\3", txt, flags=re.S)
+if new != txt:
+  open(pth,'w',encoding='utf-8').write(new)
+  print('Updated', marker, 'to', stamp)
+else:
+  print('No change for', marker)
+PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add README.md
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "docs: update $WORKFLOW_NAME timestamp to $UPDATED_AT [skip ci]"
+            git push
+          fi
+

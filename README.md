@@ -16,3 +16,7 @@ Docs:
 
 Notes
 - Badge colors: green = last workflow run succeeded, red = failed. Exact timestamp: open the badge link to the workflow runs page and check the latest run time (UTC) for “update-colab-latest” or “promote-colab-stable”.
+
+Timestamps (UTC)
+- Latest workflow: <!-- COLAB_LATEST_RUN:START -->N/A<!-- COLAB_LATEST_RUN:END -->
+- Stable workflow: <!-- COLAB_STABLE_RUN:START -->N/A<!-- COLAB_STABLE_RUN:END -->
