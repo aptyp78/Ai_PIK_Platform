@@ -250,6 +250,20 @@ print('Report to GCS:', REPORT_TO_GCS, 'Bucket:', GCS_BUCKET, 'Run tag:', RUN_TA
                            body)
             # 4) Drop xformers strict pin (conflicts with 2.5.1); make optional comment
             body = re.sub(r"!pip -q install xformers[^\n]*\n", "# xformers optional; skipped by default due to wheel/torch version coupling\n", body)
+            # 5) Add final compatibility pins to override any downgrades from requirements.txt
+            if '# Compatibility pins (final)' not in body:
+                body += (
+                    "# Compatibility pins (final)\n"
+                    "!pip -q uninstall -y xformers || true\n"
+                    "!pip -q install -U 'numpy<2.1,>=1.24' typing_extensions>=4.14.0 filelock>=3.15\n"
+                    "!pip -q install -U gcsfs==2025.3.0 fsspec==2025.3.0\n"
+                    "import importlib, pkgutil;\n"
+                    "print('[versions]',\n"
+                    "      'torch', __import__('torch').__version__,\n"
+                    "      'numpy', __import__('numpy').__version__,\n"
+                    "      'typing_extensions', __import__('typing_extensions').__version__,\n"
+                    "      'filelock', __import__('filelock').__version__)\n"
+                )
             c['source'] = body.splitlines(True)
             break
 
