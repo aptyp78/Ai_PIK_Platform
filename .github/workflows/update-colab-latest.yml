@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -46,6 +48,11 @@ jobs:
       - name: Commit stamped changes (if any)
         run: |
           set -e
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          # Rebase on latest main to avoid non-fast-forward pushes
+          git fetch origin main
+          git checkout main
+          git rebase origin/main || git merge --ff-only origin/main || true
           if [[ -n "$(git status --porcelain)" ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
