@@ -3,10 +3,11 @@ name: Stamp Colab Run Time
 on:
   workflow_run:
     workflows:
-      - update-colab-latest
-      - promote-colab-stable
+      - Stamp notebook and advance colab-latest
+      - Promote notebook to colab-stable
     types:
       - completed
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -30,11 +31,12 @@ jobs:
           marker="COLAB_LATEST_RUN"
           low=$(echo "$WORKFLOW_NAME" | tr 'A-Z' 'a-z')
           if echo "$low" | grep -q "stable"; then marker="COLAB_STABLE_RUN"; fi
+          echo "MARKER=$marker" >> $GITHUB_ENV
           python3 - <<PY
 import os, re
 pth = 'README.md'
 txt = open(pth,'r',encoding='utf-8').read()
-marker = os.environ.get('marker','COLAB_LATEST_RUN')
+marker = os.environ.get('MARKER','COLAB_LATEST_RUN')
 stamp  = os.environ.get('UPDATED_AT','')
 pattern = rf"(<!-- {marker}:START -->)(.*?)(<!-- {marker}:END -->)"
 new = re.sub(pattern, rf"\\1{stamp}\\3", txt, flags=re.S)
@@ -56,4 +58,3 @@ PY
             git commit -m "docs: update $WORKFLOW_NAME timestamp to $UPDATED_AT [skip ci]"
             git push
           fi
-
