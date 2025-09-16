@@ -257,15 +257,40 @@ print('Report to GCS:', REPORT_TO_GCS, 'Bucket:', GCS_BUCKET, 'Run tag:', RUN_TA
     for c in cells:
         src = ''.join(c.get('source') or [])
         if src.startswith('#@title Install Torch + SAM/SAM2 + GroundedDINO'):
-            curated = '''#@title Install Torch + SAM/SAM2 + GroundedDINO (cu121 hardened)
+            curated = '''#@title Install Torch + SAM/SAM2 + GroundedDINO (CUDA-aware)
 require_start()
 
 # 1) Update base tooling
 !pip -q install --upgrade pip setuptools wheel
 !pip -q install -U jedi>=0.16 typing_extensions>=4.14.0 filelock>=3.15
 
-# 2) Torch for CUDA 12.1 (Colab GPU default) — fallback to CPU can be added separately if needed
-!pip -q install --upgrade --force-reinstall torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
+# 2) Torch for detected CUDA (12.4 or 12.1); fallback to CPU
+import subprocess, re
+def _probe_cuda_tag():
+    try:
+        out = subprocess.check_output(['bash','-lc','nvcc --version || cat /usr/local/cuda/version.json || true'], text=True)
+        m = re.search(r'release (\d+)\.(\d+)', out) or re.search(r'"cuda":\s*"(\d+)\.(\d+)"', out)
+        if m:
+            major, minor = m.groups()
+            ver = f"{major}.{minor}"
+        else:
+            ver = None
+    except Exception:
+        ver = None
+    if ver and ver.startswith('12.4'):
+        return 'cu124'
+    if ver and ver.startswith('12.1'):
+        return 'cu121'
+    # Default to cu121 in Colab
+    return 'cu121'
+
+_tag = _probe_cuda_tag()
+print('[torch] installing for', _tag)
+try:
+    get_ipython().system("pip -q install --upgrade --force-reinstall torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/%s" % _tag)
+except Exception as e:
+    print('[warn] Torch install failed for', _tag, 'falling back to CPU:', e)
+    get_ipython().system("pip -q install --upgrade --force-reinstall torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu")
 
 # 3) Core deps
 !pip -q install 'numpy<2.1,>=1.24'
@@ -347,22 +372,37 @@ require_start()
 import os, re, glob, json, subprocess
 from pathlib import Path
 
-PLAYBOOKS_DIRS = ['/content/src_gcs/playbooks','/content/playbooks','/content/drive/MyDrive/playbooks']
-FRAMES_DIRS   = ['/content/src_gcs/frames','/content/frames','/content/drive/MyDrive/frames']
+# Search broadly for sources (avoid sample_data)
+SEARCH_ROOTS = ['/content/src_gcs','/content/gcs','/content','/workspace','/home']
+IGNORE_DIRS  = {'/content/sample_data'}
 OUT_PAGES_DIR = '/content/pages'
 MANIFEST      = '/content/full_run_manifest.jsonl'
 Path(OUT_PAGES_DIR).mkdir(parents=True, exist_ok=True)
 
-def _first_existing(dirs):
-  for d in dirs:
-    if Path(d).exists():
-      return d
-  return None
+def _gather_playbooks():
+  found = []
+  for root in SEARCH_ROOTS:
+    if not Path(root).exists():
+      continue
+    for pdf in glob.glob(os.path.join(root, '**', 'playbooks', '*.pdf'), recursive=True):
+      if any(pdf.startswith(bad) for bad in IGNORE_DIRS):
+        continue
+      found.append(pdf)
+  # de-dup
+  return sorted(set(found))
 
-pb_root = _first_existing(PLAYBOOKS_DIRS)
-fr_root = _first_existing(FRAMES_DIRS)
-print('playbooks root =', pb_root)
-print('frames root    =', fr_root)
+def _gather_frames():
+  found = []
+  exts = ('*.png','*.jpg','*.jpeg','*.tif','*.tiff')
+  for root in SEARCH_ROOTS:
+    if not Path(root).exists():
+      continue
+    for ext in exts:
+      for fp in glob.glob(os.path.join(root, '**', 'frames', '**', ext), recursive=True):
+        if any(fp.startswith(bad) for bad in IGNORE_DIRS):
+          continue
+        found.append(fp)
+  return sorted(set(found))
 
 def _pdf_pages(pdf_path: str) -> int:
   try:
@@ -373,8 +413,9 @@ def _pdf_pages(pdf_path: str) -> int:
     return 0
 
 images = []
-if pb_root:
-  for pdf in sorted(glob.glob(os.path.join(pb_root, '*.pdf'))):
+pbs = _gather_playbooks()
+print('playbooks found:', len(pbs))
+for pdf in pbs:
     name = Path(pdf).stem
     out_dir = Path(OUT_PAGES_DIR)/name
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -386,10 +427,9 @@ if pb_root:
         subprocess.run(['pdftoppm','-f',str(p),'-l',str(p),'-png','-singlefile','-r','150', pdf, str(png.with_suffix(''))], check=True)
       images.append(str(png))
 
-if fr_root:
-  for ext in ('*.png','*.jpg','*.jpeg'):
-    for fp in sorted(glob.glob(os.path.join(fr_root, '**', ext), recursive=True)):
-      images.append(fp)
+frs = _gather_frames()
+print('frames images found:', len(frs))
+images.extend(frs)
 
 with open(MANIFEST,'w') as f:
   for im in images:
