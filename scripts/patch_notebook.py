@@ -519,9 +519,11 @@ else:
     if not any(c.get('cell_type')=='code' and ''.join(c.get('source') or []).startswith('#@title Upload Cell Logs to GCS') for c in cells):
         cells.append(make_code_cell(upload_src))
 
-    # Stamp current git commit into title and NOTEBOOK_VERSION
+    # Stamp notebook's own last-change commit (not HEAD) into title and NOTEBOOK_VERSION
     try:
-        sha = subprocess.check_output(['git','rev-parse','--short','HEAD'], text=True).strip()
+        sha = subprocess.check_output(
+            ['git','log','-n','1','--pretty=format:%h','--', str(NB_PATH)], text=True
+        ).strip()
     except Exception:
         sha = ''
 
