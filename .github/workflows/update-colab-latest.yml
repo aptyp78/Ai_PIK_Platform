@@ -64,4 +64,6 @@ jobs:
           fi
       - name: Move colab-latest to current HEAD
         run: |
-          git push origin HEAD:refs/heads/colab-latest
+          # Force-advance colab-latest to current main HEAD (this branch is ephemeral)
+          git fetch origin colab-latest || true
+          git push --force-with-lease origin HEAD:refs/heads/colab-latest
