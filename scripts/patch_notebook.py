@@ -151,6 +151,12 @@ print('Report to GCS:', REPORT_TO_GCS, 'Bucket:', GCS_BUCKET, 'Run tag:', RUN_TA
                 c['source'] = lines
 
     nb['cells'] = cells
+    # Sanitize metadata for GitHub renderer: remove widget state blob
+    if isinstance(nb.get('metadata'), dict) and 'widgets' in nb['metadata']:
+        try:
+            del nb['metadata']['widgets']
+        except Exception:
+            pass
     NB_PATH.write_text(json.dumps(nb, ensure_ascii=False, indent=1))
     print('Notebook patched successfully.')
 
