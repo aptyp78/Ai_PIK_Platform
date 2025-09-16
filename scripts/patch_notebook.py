@@ -65,6 +65,90 @@ print('Prompts:', PROMPTS)
     if not any(c.get('cell_type')=='code' and ''.join(c.get('source') or []).startswith('#@title Run Control and Parameters') for c in cells):
         cells.insert(1, make_code_cell(control_src))
 
+    # Insert Cell Execution Logger right after control cell
+    logger_src = '''#@title Cell Execution Logger
+import os, sys, json, time, uuid, warnings
+from pathlib import Path
+try:
+  LOG_DIR  # noqa: F821
+except NameError:
+  RUN_ID = time.strftime('%Y%m%d-%H%M%S')
+  LOCAL_LOG_ROOT = '/content/colab_runs'
+  LOG_DIR = Path(LOCAL_LOG_ROOT)/RUN_ID
+  LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+from IPython import get_ipython
+ip = get_ipython()
+
+class _Tee:
+  def __init__(self, stream, buf_list):
+    self._s = stream; self._b = buf_list
+  def write(self, s):
+    try: self._s.write(s)
+    finally: self._b.append(s)
+  def flush(self):
+    try: self._s.flush()
+    except Exception: pass
+
+_celllog = {'i': None, 'start': None, 'buf_out':[], 'buf_err':[], 'warns':[], 'id': None}
+_orig_out, _orig_err = sys.stdout, sys.stderr
+_orig_showwarning = warnings.showwarning
+LOG_JSONL = str(LOG_DIR/'cells.jsonl')
+
+def _pre(cell_id):
+  _celllog['i'] = ip.execution_count + 1
+  _celllog['id'] = str(uuid.uuid4())
+  _celllog['start'] = time.time()
+  _celllog['buf_out'] = []
+  _celllog['buf_err'] = []
+  _celllog['warns'] = []
+  sys.stdout = _Tee(_orig_out, _celllog['buf_out'])
+  sys.stderr = _Tee(_orig_err, _celllog['buf_err'])
+  def _sw(message, category, filename, lineno, file=None, line=None):
+    _celllog['warns'].append({'message': str(message), 'category': getattr(category,'__name__', str(category)), 'filename': filename, 'lineno': lineno})
+    return _orig_showwarning(message, category, filename, lineno, file, line)
+  warnings.showwarning = _sw
+
+def _post(result):
+  # restore
+  sys.stdout = _orig_out
+  sys.stderr = _orig_err
+  warnings.showwarning = _orig_showwarning
+  end = time.time()
+  i = _celllog.get('i')
+  # Try to get cell source from history
+  src = None
+  try:
+    ih = ip.user_ns.get('_ih', [])
+    if i is not None and i < len(ih):
+      src = ih[i]
+  except Exception:
+    src = None
+  rec = {
+    'cell_id': _celllog.get('id'),
+    'execution_count': i,
+    'start_ts': _celllog.get('start'),
+    'end_ts': end,
+    'duration_s': (end - _celllog['start']) if _celllog.get('start') else None,
+    'success': bool(getattr(result, 'success', True)),
+    'out': ''.join(_celllog.get('buf_out') or []),
+    'err': ''.join(_celllog.get('buf_err') or []),
+    'warnings': _celllog.get('warns') or [],
+    'source': src,
+  }
+  try:
+    with open(LOG_JSONL, 'a', encoding='utf-8') as f:
+      f.write(json.dumps(rec, ensure_ascii=False) + '\n')
+  except Exception as e:
+    print('[cell-logger] write failed:', e)
+
+ip.events.register('pre_run_cell', _pre)
+ip.events.register('post_run_cell', _post)
+print('[cell-logger] enabled ->', LOG_JSONL)
+'''
+    if not any(c.get('cell_type')=='code' and ''.join(c.get('source') or []).startswith('#@title Cell Execution Logger') for c in cells):
+        cells.insert(2, make_code_cell(logger_src))
+
     # Replace old Detection Parameters cell with echo-only
     for c in cells:
         src = ''.join(c.get('source') or [])
@@ -150,6 +234,33 @@ print('Report to GCS:', REPORT_TO_GCS, 'Bucket:', GCS_BUCKET, 'Run tag:', RUN_TA
                 lines = src.splitlines(True)
                 lines = lines[:1] + ['require_start()\n', '\n'] + lines[1:]
                 c['source'] = lines
+
+    # Add explicit cell to upload cell logs to GCS
+    upload_src = '''#@title Upload Cell Logs to GCS
+require_start()
+from pathlib import Path
+p = Path(LOG_DIR) / 'cells.jsonl'
+if not p.exists():
+  print('[log] cells.jsonl not found at', p)
+else:
+  bucket = GCS_BUCKET if 'GCS_BUCKET' in globals() else 'pik-artifacts-dev'
+  prefix = f'colab_runs/{RUN_ID}' if 'RUN_ID' in globals() else 'colab_runs/manual'
+  try:
+    from google.cloud import storage
+    client = storage.Client()
+    b = client.bucket(bucket)
+    blob = b.blob(f'{prefix}/cells.jsonl')
+    blob.content_type = 'application/json'
+    blob.upload_from_filename(str(p))
+    print('[log] uploaded to', f'gs://{bucket}/{prefix}/cells.jsonl')
+  except Exception as e:
+    import subprocess
+    print('[log] storage client failed, fallback to gsutil:', e)
+    cmd = f"gsutil cp '{p}' gs://{bucket}/{prefix}/cells.jsonl"
+    subprocess.run(['bash','-lc', cmd], check=False)
+'''
+    if not any(c.get('cell_type')=='code' and ''.join(c.get('source') or []).startswith('#@title Upload Cell Logs to GCS') for c in cells):
+        cells.append(make_code_cell(upload_src))
 
     # Stamp current git commit into title and NOTEBOOK_VERSION
     try:
