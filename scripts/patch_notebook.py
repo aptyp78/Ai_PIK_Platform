@@ -255,32 +255,63 @@ print('Report to GCS:', REPORT_TO_GCS, 'Bucket:', GCS_BUCKET, 'Run tag:', RUN_TA
     for c in cells:
         src = ''.join(c.get('source') or [])
         if src.startswith('#@title Install Torch + SAM/SAM2 + GroundedDINO'):
-            body = src
-            # 1) Do not upgrade ipython in Colab; ensure jedi/typing_extensions/filelock only
-            body = re.sub(r"!pip -q install --upgrade 'ipython[^\n]+\n", "!pip -q install -U jedi>=0.16 typing_extensions>=4.14.0 filelock>=3.15\n", body)
-            # 2) Pin numpy to <2.1 to satisfy numba; keep >=1.24
-            body = body.replace("!pip -q install 'numpy==2.0.2'\n", "!pip -q install 'numpy<2.1,>=1.24'\n")
-            # 3) Ensure Torch 2.5.1 + cu124 set together
-            body = re.sub(r"!pip -q install --upgrade --force-reinstall torch==[0-9\.]+ torchvision==[0-9\.]+ torchaudio==[0-9\.]+ --index-url https://download.pytorch.org/whl/[a-z0-9]+\n",
-                           "!pip -q install --upgrade --force-reinstall torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu124\n",
-                           body)
-            # 4) Drop xformers strict pin (conflicts with 2.5.1); make optional comment
-            body = re.sub(r"!pip -q install xformers[^\n]*\n", "# xformers optional; skipped by default due to wheel/torch version coupling\n", body)
-            # 5) Add final compatibility pins to override any downgrades from requirements.txt
-            if '# Compatibility pins (final)' not in body:
-                body += (
-                    "# Compatibility pins (final)\n"
-                    "!pip -q uninstall -y xformers || true\n"
-                    "!pip -q install -U 'numpy<2.1,>=1.24' typing_extensions>=4.14.0 filelock>=3.15\n"
-                    "!pip -q install -U gcsfs==2025.3.0 fsspec==2025.3.0\n"
-                    "import importlib, pkgutil;\n"
-                    "print('[versions]',\n"
-                    "      'torch', __import__('torch').__version__,\n"
-                    "      'numpy', __import__('numpy').__version__,\n"
-                    "      'typing_extensions', __import__('typing_extensions').__version__,\n"
-                    "      'filelock', __import__('filelock').__version__)\n"
-                )
-            c['source'] = body.splitlines(True)
+            curated = '''#@title Install Torch + SAM/SAM2 + GroundedDINO (hardened)
+import sys, subprocess, os
+
+def _sh(cmd):
+  print('>', cmd)
+  subprocess.check_call(cmd, shell=True)
+
+_sh("pip -q install -U pip setuptools wheel")
+
+# Torch with CUDA 12.4 (Colab GPU) or CPU fallback
+try:
+  _sh("pip -q install --upgrade --force-reinstall torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu124")
+except Exception as e:
+  print('[warn] CUDA Torch install failed, falling back to CPU:', e)
+  _sh("pip -q install --upgrade --force-reinstall torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu")
+
+# Base deps
+_sh("pip -q install -U 'numpy<2.1,>=1.24' typing_extensions>=4.14.0 filelock>=3.15")
+_sh("pip -q install -U opencv-python timm==0.9.16 transformers==4.43.3 addict yapf pycocotools supervision onnxruntime shapely matplotlib")
+
+# GroundingDINO / SAM v1 / SAM2
+_sh("pip -q install -U git+https://github.com/IDEA-Research/GroundingDINO.git@main")
+_sh("pip -q install -U git+https://github.com/facebookresearch/segment-anything.git@main")
+SAM2_OK = True
+try:
+  _sh("pip -q install -U git+https://github.com/facebookresearch/segment-anything-2.git@main")
+except Exception as e:
+  print('[warn] SAM2 install failed:', e)
+  SAM2_OK = False
+
+import torch, torchvision, numpy
+print('[versions]', 'torch', torch.__version__, 'torchvision', torchvision.__version__, 'numpy', numpy.__version__)
+
+try:
+  import groundingdino
+  print('GroundingDINO import OK')
+except Exception as e:
+  print('[fatal] GroundingDINO import failed:', e)
+  raise
+
+try:
+  import segment_anything
+  print('SAM v1 import OK')
+except Exception as e:
+  print('[fatal] SAM v1 import failed:', e)
+  raise
+
+if SAM2_OK:
+  try:
+    import sam2
+    print('SAM2 import OK')
+  except Exception as e:
+    print('[warn] SAM2 import failed at runtime:', e)
+
+print('CUDA available:', torch.cuda.is_available())
+'''
+            c['source'] = curated.splitlines(True)
             break
 
     # Add explicit cell to upload cell logs to GCS
