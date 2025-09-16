@@ -41,6 +41,23 @@ def embed_query_openai(text: str, model: str = "text-embedding-3-large") -> List
     return resp.data[0].embedding
 
 
+def embed_query_openclip(text: str, model_name: str = "ViT-B-32", pretrained: str = "laion2b_s34b_b79k") -> List[float]:
+    try:
+        import open_clip  # type: ignore
+        import torch  # type: ignore
+    except Exception:
+        raise SystemExit("open_clip/torch required for --with-images. Install open-clip-torch and torch.")
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model, _, preprocess = open_clip.create_model_and_transforms(model_name, pretrained=pretrained, device=device)
+    tokenizer = open_clip.get_tokenizer(model_name)
+    with torch.no_grad():
+        tok = tokenizer([text])
+        tok = {k: v.to(device) for k, v in tok.items()} if isinstance(tok, dict) else tok.to(device)
+        feats = model.encode_text(tok)
+        feats = feats / feats.norm(dim=-1, keepdim=True)
+    return feats[0].cpu().tolist()  # type: ignore
+
+
 def main():
     p = argparse.ArgumentParser(description="Cosine search over precomputed OpenAI embeddings (NDJSON)")
     p.add_argument("--index", default="out/openai_embeddings.ndjson", help="Path to NDJSON with vectors")
@@ -49,10 +66,21 @@ def main():
     p.add_argument("--model", default="text-embedding-3-large", help="OpenAI embedding model for the query")
     p.add_argument("--prefer-visual", action="store_true", help="Upweight VisualCaption/VisualFact types")
     p.add_argument("--type-weights", default=None, help="Comma list, e.g., Text=1,VisualCaption=1.1,VisualFact=1.05")
+    p.add_argument("--with-images", action="store_true", help="Blend OpenCLIP image vectors into ranking")
+    p.add_argument("--image-model-name", default="ViT-B-32")
+    p.add_argument("--image-pretrained", default="laion2b_s34b_b79k")
+    p.add_argument("--image-weight", type=float, default=0.5, help="Weight multiplier for image scores in blend")
     args = p.parse_args()
 
     items = load_ndjson(Path(args.index))
     qvec = embed_query_openai(args.query, model=args.model)
+    qclip = None
+    if args.with_images:
+        try:
+            qclip = embed_query_openclip(args.query, model_name=args.image_model_name, pretrained=args.image_pretrained)
+        except SystemExit as e:
+            print(str(e))
+            args.with_images = False
 
     # parse type weights
     weights = {"Text": 1.0, "VisualCaption": 1.0, "VisualFact": 1.0, "Image": 0.95, "Table": 1.0}
@@ -85,17 +113,22 @@ def main():
 
     scored: List[Tuple[float, dict]] = []
     for it in items:
-        sim = cosine_sim(qvec, it["vector"])  # type: ignore
         m = it.get("meta", {})
         t = m.get("type")
-        w = weights.get(t, 1.0)
-        tw = 1.0
-        tags = m.get("tags") or []
-        if isinstance(tags, list) and tags:
-            # use the strongest matching tag weight
-            for tg in tags:
-                tw = max(tw, tag_weights.get(tg, 1.0))
-        scored.append((sim * w * tw, it))
+        provider = it.get("provider")
+        score = 0.0
+        if provider == "open_clip" and args.with_images and qclip is not None:
+            score = cosine_sim(qclip, it["vector"]) * args.image_weight  # type: ignore
+        else:
+            sim = cosine_sim(qvec, it["vector"])  # type: ignore
+            w = weights.get(t, 1.0)
+            tw = 1.0
+            tags = m.get("tags") or []
+            if isinstance(tags, list) and tags:
+                for tg in tags:
+                    tw = max(tw, tag_weights.get(tg, 1.0))
+            score = sim * w * tw
+        scored.append((score, it))
     scored.sort(key=lambda x: x[0], reverse=True)
 
     for rank, (sim, it) in enumerate(scored[: args.k], start=1):

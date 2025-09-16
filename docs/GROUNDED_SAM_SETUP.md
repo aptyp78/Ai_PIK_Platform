@@ -29,6 +29,11 @@ Download weights into `~/models` (or a path you prefer):
 
 Put them under: `~/models/{groundingdino, sam, sam2}/...`
 
+Tip: set `MODEL_DIR=~/models` and the detection script will try to auto-resolve paths:
+- GroundingDINO: `${MODEL_DIR}/groundingdino/*.pth`
+- Prefer SAM‑2: `${MODEL_DIR}/sam2/*.pt`; fallback to SAM v1: `${MODEL_DIR}/sam/*.pth`
+You can also override via CLI flags `--grounding-model` and `--sam-model`.
+
 ## 3) Run the pipeline
 
 We provide a detection script that uses GroundedDINO+SAM to generate regions and then the existing LLM analyzer to extract caption/struct/facts.

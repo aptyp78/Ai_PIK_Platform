@@ -19,6 +19,9 @@ echo "[2/6] Analyzing regions with ${CHAT_MODEL} (skip existing)"
   --detected-dir "${REGIONS_DIR}" --all --outdir "${REGIONS_DIR}" \
   --chat-model "${CHAT_MODEL}" --skip-existing
 
+echo "[2.1/6] Writing manifests for processed units"
+"${VENV_PY:-.venv/bin/python}" scripts/write_region_manifest.py --regions-dir "${REGIONS_DIR}"
+
 echo "[3/6] Ensuring facts exist for all regions (fallbacks if needed)"
 "${VENV_PY:-.venv/bin/python}" scripts/fill_region_facts.py --roots "${REGIONS_DIR}"
 
@@ -38,3 +41,6 @@ echo "[6/6] Computing retrieval metrics (prefer visual)"
 
 echo "Done. Visual review: eval/visual_review.html"
 
+# Append a lightweight summary line for observability
+mkdir -p Logs
+printf '%s\n' "{\"timestamp\":\"$(date -u +%FT%TZ)\",\"regions_dir\":\"${REGIONS_DIR}\",\"index\":\"${INDEX_OUT}\",\"chat_model\":\"${CHAT_MODEL}\",\"embed_model\":\"${EMBED_MODEL}\"}" >> Logs/visual_runs.jsonl

@@ -36,14 +36,14 @@ def main():
     nb = _load_notebook_or_die(NB_PATH)
     cells = nb.get('cells', [])
 
-    control_src = '''#@title Run Control and Parameters
+    control_src = '''#@title Run Control and Parameters (disabled gate: runs full volume)
 # SIGPIPE-friendly stdout (avoid BrokenPipeError in Colab pipes)
 import signal
 if hasattr(signal, 'SIGPIPE'):
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 # Toggle to start the pipeline
-START_RUN = False  #@param {type:"boolean"}
+START_RUN = True  # gate disabled: always start
 
 # Key parameters (leave pages empty to process ALL pages)
 PLAYBOOK_PDF = '/content/src_gcs/playbooks/PIK - Expert Guide - Platform IT Architecture - Playbook - v11.pdf'  #@param {type:"string"}
@@ -66,10 +66,9 @@ PROMPTS = [x.strip() for x in PROMPTS_INPUT.split(',') if x.strip()]
 OUT_PAGES_DIR = '/content/pages'
 DETECT_OUT = '/content/grounded_regions'
 
-# Helper to gate execution in subsequent cells
+# Helper to gate execution in subsequent cells (no-op)
 def require_start():
-    if not START_RUN:
-        raise SystemExit('Execution gated. Set START_RUN=True in the top cell and rerun.')
+    return None
 
 print('Configured. START_RUN=', START_RUN)
 print('PDF:', PLAYBOOK_PDF)

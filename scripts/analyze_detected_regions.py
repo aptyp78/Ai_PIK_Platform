@@ -49,6 +49,22 @@ def ensure_png(path: Path, caption: str, text: str) -> None:
     im.save(path)
 
 
+def _postprocess_struct(obj: Dict[str, Any]) -> Dict[str, Any]:
+    # Normalize common variants into our schema
+    if not isinstance(obj, dict):
+        return {"artifact_type": "Unknown", "raw_text": str(obj)}
+    out = dict(obj)
+    # Map 'type' -> artifact_type when present
+    t = (out.get("type") or out.get("artifact_type") or "").strip()
+    if t and not out.get("artifact_type"):
+        out["artifact_type"] = t if t in {"Canvas", "Assessment", "Diagram"} else "Unknown"
+    # Ensure top-level keys exist
+    for k in ("Canvas", "Assessment", "Diagram"):
+        if k not in out:
+            out[k] = out.get(k) if isinstance(out.get(k), dict) else {}
+    return out
+
+
 def llm_analyze(client, text: str, image_b64: str, model: str) -> (str, Dict[str, Any]):
     content = []
     if image_b64:
@@ -58,7 +74,8 @@ def llm_analyze(client, text: str, image_b64: str, model: str) -> (str, Dict[str
         content.append({"type": "text", "text": f"Region OCR/Text:\n{text[:4000]}"})
 
     sys = (
-        "You are a vision+text analyst. For the provided region, produce: (1) a concise caption (1-2 sentences) and (2) a normalized JSON structure."
+        "You are a precise vision+text analyst. For the region, produce: "
+        "(1) a concise caption (1–2 sentences) and (2) a STRICT JSON object describing the artifact."
     )
     # caption
     cap = client.chat.completions.create(
@@ -73,25 +90,27 @@ def llm_analyze(client, text: str, image_b64: str, model: str) -> (str, Dict[str
 
     # struct
     struct_instr = (
-        "Task 2: Return ONLY a JSON object in one of shapes: Canvas/Assessment/Diagram as previously described."
+        "Task 2: Return ONLY a JSON object with this schema: "
+        "{artifact_type: 'Canvas'|'Assessment'|'Diagram', Canvas?: {layers?: string[], components?: string[], personas?: string[], journey?: string[], relations?: string[]}, "
+        "Assessment?: {pillars?: {Operational?:any, Security?:any, Reliability?:any, Performance?:any, Cost?:any}, criteria?: string[]}, "
+        "Diagram?: {entities?: string[], edges?: string[], legend?: string[], groups?: string[]}}. "
+        "For Canvas.layers, use ONLY this set of canonical names if applicable: ['Engagement','Intelligence','Infrastructure','Ecosystem Connectivity']."
     )
     st = client.chat.completions.create(
         model=model,
         temperature=0.1,
+        response_format={"type": "json_object"},
         messages=[
             {"role": "system", "content": sys},
             {"role": "user", "content": content + [{"type": "text", "text": struct_instr}]},
         ],
     )
     raw = (st.choices[0].message.content or "{}").strip()
-    if raw.startswith("```"):
-        raw = raw.strip("`\n").split("\n", 1)[-1]
-        if raw.startswith("json\n"):
-            raw = raw[5:]
     try:
         struct = json.loads(raw)
     except Exception:
         struct = {"artifact_type": "Unknown", "raw_text": raw}
+    struct = _postprocess_struct(struct)
     return caption, struct
 
 

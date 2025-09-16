@@ -34,6 +34,36 @@ def require_packages():
         )
 
 
+def resolve_model_paths(grounding_model_cli: str, sam_model_cli: str) -> Tuple[str, str, str]:
+    """Resolve model paths from CLI args or MODEL_DIR.
+    Returns (grounding_path, sam_or_sam2_path, selected_kind) where kind in {"sam2","sam"}.
+    """
+    model_dir = os.getenv("MODEL_DIR", "").strip()
+    # Resolve GroundingDINO
+    grounding_path = grounding_model_cli.strip()
+    if not grounding_path and model_dir:
+        # Try common file names under MODEL_DIR/groundingdino
+        candidates = list(Path(model_dir, "groundingdino").glob("*.pth"))
+        if candidates:
+            grounding_path = str(candidates[0])
+    # Resolve SAM2 first, then SAM v1
+    selected_kind = ""
+    sam_path = sam_model_cli.strip()
+    if not sam_path and model_dir:
+        sam2_cands = list(Path(model_dir, "sam2").glob("*.pt"))
+        sam1_cands = list(Path(model_dir, "sam").glob("*.pth"))
+        if sam2_cands:
+            sam_path = str(sam2_cands[0])
+            selected_kind = "sam2"
+        elif sam1_cands:
+            sam_path = str(sam1_cands[0])
+            selected_kind = "sam"
+    # If still not known kind, infer from extension
+    if not selected_kind and sam_path:
+        selected_kind = "sam2" if sam_path.endswith(".pt") else "sam"
+    return grounding_path, sam_path, selected_kind or "sam"
+
+
 def detect_regions_with_grounded(images: List[Path], outdir: Path, grounding_model: str, sam_model: str, prompts: List[str]):
     # NOTE: This is a placeholder to keep the script light.
     # In a real setup, you would:
@@ -86,10 +116,19 @@ def main():
         print(str(e))
         print("Proceeding with placeholder full-image region output so downstream can be tested.")
 
+    g_path, s_path, kind = resolve_model_paths(args.grounding_model, args.sam_model)
+    if g_path:
+        print(f"[INFO] GroundingDINO weights: {g_path}")
+    else:
+        print("[WARN] GroundingDINO weights not set. Using placeholder region output.")
+    if s_path:
+        print(f"[INFO] {'SAM2' if kind=='sam2' else 'SAM v1'} weights: {s_path}")
+    else:
+        print("[WARN] SAM/SAM2 weights not set. Using placeholder region output.")
+
     images = [Path(p) for p in args.images]
-    detect_regions_with_grounded(images, out, args.grounding_model, args.sam_model, args.prompts)
+    detect_regions_with_grounded(images, out, g_path, s_path, args.prompts)
 
 
 if __name__ == "__main__":
     main()
-

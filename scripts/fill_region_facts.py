@@ -37,9 +37,21 @@ def triples_from_struct(struct: Dict[str, Any], page: int, rid: int) -> List[Dic
     if at == "Canvas":
         cv = struct.get("Canvas", {}) if isinstance(struct.get("Canvas"), dict) else {}
         for l in (cv.get("layers", []) or []):
-            add(str(l), "Layer", "is_a", "Layer", "Class", ["Canvas"], 0.80)
+            # Always tag Layer + Canvas; add canonical layer tag if matched
+            tags = ["Canvas", "Layer"]
+            low = str(l).strip().lower()
+            canon = {
+                "engagement": "Engagement",
+                "intelligence": "Intelligence",
+                "infrastructure": "Infrastructure",
+                "ecosystem": "EcosystemConnectivity",
+                "ecosystem connectivity": "EcosystemConnectivity",
+            }.get(low)
+            if canon:
+                tags.append(canon)
+            add(str(l), "Layer", "is_a", "Layer", "Class", tags, 0.80)
         for c in (cv.get("components", []) or []):
-            add(str(c), "Component", "appears_in", "Canvas", "Artifact", ["Canvas"], 0.75)
+            add(str(c), "Component", "appears_in", "Canvas", "Artifact", ["Canvas", "Component"], 0.75)
     elif at == "Assessment":
         av = struct.get("Assessment", {}) if isinstance(struct.get("Assessment"), dict) else {}
         for p in (av.get("pillars", {}) or {}).keys():

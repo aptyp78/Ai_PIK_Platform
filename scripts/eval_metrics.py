@@ -40,6 +40,26 @@ def embed_openai_batch(texts: List[str], model: str) -> List[List[float]]:
     return [d.embedding for d in resp.data]
 
 
+def embed_openclip_texts(texts: List[str], model_name: str = "ViT-B-32", pretrained: str = "laion2b_s34b_b79k") -> List[List[float]]:
+    try:
+        import open_clip  # type: ignore
+        import torch  # type: ignore
+    except Exception:
+        raise SystemExit("open_clip/torch required for --with-images. Install open-clip-torch and torch.")
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model, _, _ = open_clip.create_model_and_transforms(model_name, pretrained=pretrained, device=device)
+    tokenizer = open_clip.get_tokenizer(model_name)
+    with torch.no_grad():
+        tok = tokenizer(texts)
+        if isinstance(tok, dict):
+            tok = {k: v.to(device) for k, v in tok.items()}
+            feats = model.encode_text(tok)
+        else:
+            feats = model.encode_text(tok.to(device))
+        feats = feats / feats.norm(dim=-1, keepdim=True)
+    return feats.cpu().tolist()  # type: ignore
+
+
 def ndcg_at_k(positives: set, ranked_ids: List[int], k: int) -> float:
     dcg = 0.0
     for i, pid in enumerate(ranked_ids[:k], start=1):
@@ -60,6 +80,10 @@ def main():
     p.add_argument("--model", default="text-embedding-3-large")
     p.add_argument("--prefer-visual", action="store_true", help="Upweight VisualCaption/VisualFact types in ranking")
     p.add_argument("--type-weights", default=None, help="Comma list, e.g., Text=1,VisualCaption=1.1,VisualFact=1.05")
+    p.add_argument("--with-images", action="store_true", help="Blend OpenCLIP image vectors for ImageVec provider")
+    p.add_argument("--image-model-name", default="ViT-B-32")
+    p.add_argument("--image-pretrained", default="laion2b_s34b_b79k")
+    p.add_argument("--image-weight", type=float, default=0.5)
     args = p.parse_args()
 
     items = load_ndjson(Path(args.index))
@@ -98,30 +122,41 @@ def main():
 
     queries = [r["query"] for r in eval_recs]
     qvecs = embed_openai_batch(queries, model=args.model)
+    qclip_vecs = None
+    if args.with_images:
+        try:
+            qclip_vecs = embed_openclip_texts(queries, model_name=args.image_model_name, pretrained=args.image_pretrained)
+        except SystemExit as e:
+            print(str(e))
+            args.with_images = False
 
     totals = {f"recall@{k}": 0.0 for k in args.k}
     totals.update({f"ndcg@{k}": 0.0 for k in args.k})
     mrr_total = 0.0
     used = 0
 
-    for rec, qv in zip(eval_recs, qvecs):
+    for idx_rec, (rec, qv) in enumerate(zip(eval_recs, qvecs)):
         positives = set(rec.get("positive_ids", []) or [])
         if not positives:
             continue
         # rank all by cosine
         scores = []
         for it in items:
-            sim = cosine_sim(qv, it["vector"])  # type: ignore
-            # apply weights
             m = it.get("meta", {})
-            t = m.get("type")
-            tw = type_weights.get(t, 1.0)
-            tagw = 1.0
-            tags = m.get('tags') or []
-            if isinstance(tags, list) and tags:
-                for tg in tags:
-                    tagw = max(tagw, tag_weights.get(tg, 1.0))
-            s = sim * tw * tagw
+            provider = it.get("provider")
+            if provider == "open_clip" and args.with_images and qclip_vecs is not None:
+                s = cosine_sim(qclip_vecs[idx_rec], it["vector"]) * args.image_weight  # type: ignore
+            else:
+                sim = cosine_sim(qv, it["vector"])  # type: ignore
+                # apply weights
+                t = m.get("type")
+                tw = type_weights.get(t, 1.0)
+                tagw = 1.0
+                tags = m.get('tags') or []
+                if isinstance(tags, list) and tags:
+                    for tg in tags:
+                        tagw = max(tagw, tag_weights.get(tg, 1.0))
+                s = sim * tw * tagw
             scores.append((s, it["id"]))
         scores.sort(reverse=True)
         ranked_ids = [id for _, id in scores]
