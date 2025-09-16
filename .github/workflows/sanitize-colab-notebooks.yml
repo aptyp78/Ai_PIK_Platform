@@ -1,4 +1,4 @@
-name: Sanitize Colab Notebooks
+name: Sanitize Colab Notebooks (to preview branch)
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 jobs:
-  sanitize:
+  sanitize-to-preview:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,20 +20,34 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sanitize notebooks
+      - name: Decide preview branch name
+        id: decide
+        run: |
+          BRANCH="${GITHUB_REF##*/}"
+          if [ "$BRANCH" = "colab-stable" ]; then
+            echo "TARGET_BRANCH=colab-preview-stable" >> $GITHUB_ENV
+          else
+            echo "TARGET_BRANCH=colab-preview" >> $GITHUB_ENV
+          fi
+          echo "Using preview branch: ${TARGET_BRANCH}"
+
+      - name: Create preview branch from current commit
+        run: |
+          git checkout -B "$TARGET_BRANCH"
+
+      - name: Sanitize notebooks in preview branch
         run: |
           python3 scripts/sanitize_notebooks.py || true
           git status --porcelain
 
-      - name: Commit and push changes
+      - name: Commit and push preview
         run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
           if git diff --quiet; then
-            echo "No changes to commit"
+            echo "No changes after sanitize; still force update preview to current commit"
           else
-            git config user.name "github-actions"
-            git config user.email "github-actions@users.noreply.github.com"
             git add -A
             git commit -m "ci: sanitize notebooks for GitHub preview (drop metadata.widgets) [skip ci]"
-            git push
           fi
-
+          git push --force-with-lease origin HEAD:refs/heads/$TARGET_BRANCH
