@@ -77,11 +77,10 @@ print('Frames:', FRAME_NAMES)
 print('Prompts:', PROMPTS)
 '''
 
-    # Insert control cell at index 1 if not present
-    if not any(c.get('cell_type')=='code' and ''.join(c.get('source') or []).startswith('#@title Run Control and Parameters') for c in cells):
-        cells.insert(1, make_code_cell(control_src))
+    # Remove any existing Control and Parameters cell; do NOT insert it back
+    cells = [c for c in cells if not (c.get('cell_type')=='code' and ''.join(c.get('source') or []).startswith('#@title Run Control and Parameters'))]
 
-    # Insert Cell Execution Logger right after control cell
+    # Insert Cell Execution Logger near top (after first cell)
     logger_src = '''#@title Cell Execution Logger
 import os, sys, json, time, uuid, warnings
 from pathlib import Path
@@ -163,7 +162,7 @@ ip.events.register('post_run_cell', _post)
 print('[cell-logger] enabled ->', LOG_JSONL)
 '''
     if not any(c.get('cell_type')=='code' and ''.join(c.get('source') or []).startswith('#@title Cell Execution Logger') for c in cells):
-        cells.insert(2, make_code_cell(logger_src))
+        cells.insert(1 if len(cells)>1 else 0, make_code_cell(logger_src))
 
     # Replace old Detection Parameters cell with echo-only
     for c in cells:
@@ -235,6 +234,9 @@ print('Report to GCS:', REPORT_TO_GCS, 'Bucket:', GCS_BUCKET, 'Run tag:', RUN_TA
             c['source'] = body.splitlines(True)
             break
 
+    # Ensure a no-op require_start exists (remove gating)
+    if not any(c.get('cell_type')=='code' and 'def require_start()' in ''.join(c.get('source') or []) for c in cells):
+        cells.insert(1, make_code_cell('#@title No-op gate helper\ndef require_start():\n  return None\n'))
     # Add require_start to heavy-action cells
     prefixes = [
         'Боевой режим: GroundedDINO',
@@ -255,64 +257,240 @@ print('Report to GCS:', REPORT_TO_GCS, 'Bucket:', GCS_BUCKET, 'Run tag:', RUN_TA
     for c in cells:
         src = ''.join(c.get('source') or [])
         if src.startswith('#@title Install Torch + SAM/SAM2 + GroundedDINO'):
-            curated = '''#@title Install Torch + SAM/SAM2 + GroundedDINO (hardened)
-import sys, subprocess, os
+            curated = '''#@title Install Torch + SAM/SAM2 + GroundedDINO (cu121 hardened)
+require_start()
 
-def _sh(cmd):
-  print('>', cmd)
-  subprocess.check_call(cmd, shell=True)
+# 1) Update base tooling
+!pip -q install --upgrade pip setuptools wheel
+!pip -q install -U jedi>=0.16 typing_extensions>=4.14.0 filelock>=3.15
 
-_sh("pip -q install -U pip setuptools wheel")
+# 2) Torch for CUDA 12.1 (Colab GPU default) — fallback to CPU can be added separately if needed
+!pip -q install --upgrade --force-reinstall torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
 
-# Torch with CUDA 12.4 (Colab GPU) or CPU fallback
-try:
-  _sh("pip -q install --upgrade --force-reinstall torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu124")
-except Exception as e:
-  print('[warn] CUDA Torch install failed, falling back to CPU:', e)
-  _sh("pip -q install --upgrade --force-reinstall torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu")
+# 3) Core deps
+!pip -q install 'numpy<2.1,>=1.24'
+!pip -q install shapely timm opencv-python pycocotools addict yacs requests pillow huggingface_hub
 
-# Base deps
-_sh("pip -q install -U 'numpy<2.1,>=1.24' typing_extensions>=4.14.0 filelock>=3.15")
-_sh("pip -q install -U opencv-python timm==0.9.16 transformers==4.43.3 addict yapf pycocotools supervision onnxruntime shapely matplotlib")
+# 4) SAM and SAM2
+!pip -q install git+https://github.com/facebookresearch/segment-anything.git
+!pip -q install git+https://github.com/facebookresearch/segment-anything-2.git
 
-# GroundingDINO / SAM v1 / SAM2
-_sh("pip -q install -U git+https://github.com/IDEA-Research/GroundingDINO.git@main")
-_sh("pip -q install -U git+https://github.com/facebookresearch/segment-anything.git@main")
-SAM2_OK = True
-try:
-  _sh("pip -q install -U git+https://github.com/facebookresearch/segment-anything-2.git@main")
-except Exception as e:
-  print('[warn] SAM2 install failed:', e)
-  SAM2_OK = False
+# 5) GroundingDINO — pip first, fallback to source build
+import sys, os, subprocess, importlib
 
-import torch, torchvision, numpy
-print('[versions]', 'torch', torch.__version__, 'torchvision', torchvision.__version__, 'numpy', numpy.__version__)
+print('[GroundingDINO] installing via pip…')
+!pip -q install "git+https://github.com/IDEA-Research/GroundingDINO.git"
 
 try:
-  import groundingdino
-  print('GroundingDINO import OK')
-except Exception as e:
-  print('[fatal] GroundingDINO import failed:', e)
-  raise
+    importlib.import_module('groundingdino')
+    print('✅ GroundingDINO pip import OK')
+except ImportError:
+    print('⚠️ pip install failed, building from source…')
+    if '/content/GroundingDINO' not in sys.path:
+        sys.path.append('/content/GroundingDINO')
+    !rm -rf /content/GroundingDINO
+    !git clone --depth 1 https://github.com/IDEA-Research/GroundingDINO.git /content/GroundingDINO
+    # Build C++ extensions
+    try:
+        subprocess.check_call(['bash','-lc','sudo apt-get -q update && sudo apt-get -q install -y ninja-build'])
+    except Exception as e:
+        print('[warn] apt-get ninja-build failed:', e)
+    build_dir = '/content/GroundingDINO'
+    orig = os.getcwd()
+    os.chdir(build_dir)
+    try:
+        res = subprocess.run([sys.executable, 'setup.py', 'build_ext', '--inplace'], capture_output=True, text=True)
+        if res.returncode != 0:
+            print('🟥 build_ext failed:\n', res.stderr)
+        else:
+            print('✅ build_ext ok')
+    finally:
+        os.chdir(orig)
+    try:
+        if 'groundingdino' in sys.modules:
+            importlib.reload(sys.modules['groundingdino'])
+        else:
+            importlib.import_module('groundingdino')
+        print('✅ GroundingDINO import OK after source build')
+    except Exception as e:
+        print('🟥 GroundingDINO import still failing:', e)
 
+# 6) Final checks
 try:
-  import segment_anything
-  print('SAM v1 import OK')
+    import torch, numpy
+    print(f"[versions] torch: {torch.__version__}, numpy: {numpy.__version__}")
+    from groundingdino.util.inference import Model
+    print('✅ GroundingDINO.Model available')
+    import segment_anything as _sam
+    print('✅ SAM v1 import OK')
+    try:
+        import sam2 as _sam2
+        print('✅ SAM2 import OK')
+    except Exception as e:
+        print('[warn] SAM2 import failed:', e)
+    print('CUDA available:', torch.cuda.is_available())
 except Exception as e:
-  print('[fatal] SAM v1 import failed:', e)
-  raise
+    print('🟥 Final checks failed:', e)
 
-if SAM2_OK:
-  try:
-    import sam2
-    print('SAM2 import OK')
-  except Exception as e:
-    print('[warn] SAM2 import failed at runtime:', e)
-
-print('CUDA available:', torch.cuda.is_available())
+# 7) Harmonize
+!pip -q uninstall -y xformers || true
+!pip -q install -U 'numpy<2.1,>=1.24' typing_extensions>=4.14.0 filelock>=3.15 gcsfs==2025.3.0 fsspec==2025.3.0
 '''
             c['source'] = curated.splitlines(True)
             break
+
+    # Add a "Full Run" helper cell to enumerate all playbooks and frames and render pages
+    full_run_title = '#@title Full Run — enumerate playbooks and frames; render all pages'
+    if not any(c.get('cell_type')=='code' and ''.join(c.get('source') or []).startswith(full_run_title) for c in cells):
+        full_run_src = full_run_title + "\n" + """
+require_start()
+import os, re, glob, json, subprocess
+from pathlib import Path
+
+PLAYBOOKS_DIRS = ['/content/src_gcs/playbooks','/content/playbooks','/content/drive/MyDrive/playbooks']
+FRAMES_DIRS   = ['/content/src_gcs/frames','/content/frames','/content/drive/MyDrive/frames']
+OUT_PAGES_DIR = '/content/pages'
+MANIFEST      = '/content/full_run_manifest.jsonl'
+Path(OUT_PAGES_DIR).mkdir(parents=True, exist_ok=True)
+
+def _first_existing(dirs):
+  for d in dirs:
+    if Path(d).exists():
+      return d
+  return None
+
+pb_root = _first_existing(PLAYBOOKS_DIRS)
+fr_root = _first_existing(FRAMES_DIRS)
+print('playbooks root =', pb_root)
+print('frames root    =', fr_root)
+
+def _pdf_pages(pdf_path: str) -> int:
+  try:
+    out = subprocess.check_output(['pdfinfo', pdf_path], text=True)
+    m = re.search(r'^Pages:\\s+(\\d+)', out, re.M)
+    return int(m.group(1)) if m else 0
+  except Exception:
+    return 0
+
+images = []
+if pb_root:
+  for pdf in sorted(glob.glob(os.path.join(pb_root, '*.pdf'))):
+    name = Path(pdf).stem
+    out_dir = Path(OUT_PAGES_DIR)/name
+    out_dir.mkdir(parents=True, exist_ok=True)
+    n = _pdf_pages(pdf)
+    print('[render]', name, ': pages=', n)
+    for p in range(1, n+1):
+      png = out_dir/f'page-{p}.png'
+      if not png.exists():
+        subprocess.run(['pdftoppm','-f',str(p),'-l',str(p),'-png','-singlefile','-r','150', pdf, str(png.with_suffix(''))], check=True)
+      images.append(str(png))
+
+if fr_root:
+  for ext in ('*.png','*.jpg','*.jpeg'):
+    for fp in sorted(glob.glob(os.path.join(fr_root, '**', ext), recursive=True)):
+      images.append(fp)
+
+with open(MANIFEST,'w') as f:
+  for im in images:
+    f.write(json.dumps({'image': im})+'\n')
+
+print('Prepared images:', len(images))
+print('Manifest written to:', MANIFEST)
+"""
+        cells.append(make_code_cell(full_run_src))
+
+    # Add a batch detection runner that consumes the manifest and writes regions
+    batch_title = '#@title Batch Detect — iterate manifest and write regions (+optional GCS upload)'
+    if not any(c.get('cell_type')=='code' and ''.join(c.get('source') or []).startswith(batch_title) for c in cells):
+        batch_src = batch_title + "\n" + """
+require_start()
+import os, json, shutil, base64
+from pathlib import Path
+from PIL import Image
+
+MANIFEST = '/content/full_run_manifest.jsonl'
+DETECT_OUT = '/content/grounded_regions'
+PROMPTS = ['diagram','canvas','table','legend','arrow','node']
+Path(DETECT_OUT).mkdir(parents=True, exist_ok=True)
+
+def _png_b64(img_path: str) -> str:
+  try:
+    im = Image.open(img_path).convert('RGB')
+    import io
+    buf = io.BytesIO(); im.save(buf, format='PNG')
+    return base64.b64encode(buf.getvalue()).decode('utf-8')
+  except Exception:
+    return ''
+
+def _fallback_detect(img_path: str, unit_dir: Path):
+  (unit_dir/'regions').mkdir(parents=True, exist_ok=True)
+  reg = unit_dir/'regions'/'region-1.json'
+  b64 = _png_b64(img_path)
+  reg.write_text(json.dumps({
+    'bbox': {'x':0,'y':0,'w':-1,'h':-1},
+    'text': '',
+    'image_b64': b64,
+  }), encoding='utf-8')
+  # copy preview
+  try:
+    dst = unit_dir/'regions'/'region-1.png'
+    if not dst.exists():
+      shutil.copy2(img_path, dst)
+  except Exception:
+    pass
+
+def _unit_from_path(p: Path) -> str:
+  # Use parent dir for pages/<doc>/page-<n>.png; else fall back to stem
+  if p.parent.name.startswith('page-'):
+    return p.parent.parent.name
+  if p.parent.name and p.parent.parent.name == 'pages':
+    return p.parent.name
+  return p.stem
+
+def detect_image(img_path: str):
+  # Try to call a notebook-level detect function if present; else fallback placeholder
+  nb = globals()
+  unit = _unit_from_path(Path(img_path))
+  unit_dir = Path(DETECT_OUT)/unit
+  fn = nb.get('detect_image_to_regions') or nb.get('run_detection_one')
+  if callable(fn):
+    try:
+      fn(img_path, str(unit_dir))
+      return
+    except Exception as e:
+      print('[warn] detect func failed, fallback:', e)
+  _fallback_detect(img_path, unit_dir)
+
+images = []
+with open(MANIFEST, 'r', encoding='utf-8') as f:
+  for line in f:
+    if line.strip():
+      obj = json.loads(line)
+      images.append(obj.get('image'))
+
+print('Detecting over', len(images), 'images')
+for i, im in enumerate(images, start=1):
+  try:
+    detect_image(im)
+    if i % 20 == 0:
+      print('..', i, 'done')
+  except Exception as e:
+    print('[error] failed on', im, e)
+
+print('Local regions root:', DETECT_OUT)
+
+# Optional: upload to GCS if bucket var present
+try:
+  import subprocess
+  bucket = GCS_BUCKET if 'GCS_BUCKET' in globals() else None
+  if bucket:
+    print('[upload] syncing to', f'gs://{bucket}/grounded_regions')
+    subprocess.run(['bash','-lc', f"gsutil -m rsync -r '{DETECT_OUT}' 'gs://{bucket}/grounded_regions'"], check=False)
+except Exception as e:
+  print('[warn] GCS upload failed:', e)
+"""
+        cells.append(make_code_cell(batch_src))
 
     # Add explicit cell to upload cell logs to GCS
     upload_src = '''#@title Upload Cell Logs to GCS
