@@ -1,6 +1,6 @@
 # GroundedDINO + SAM/SAM‑2 Setup and Pipeline
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aptyp78/PIKAi/blob/main/notebooks/Grounded_DINO_SAM2_Detection.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aptyp78/PIKAi/blob/574ca3c/notebooks/Grounded_DINO_SAM2_Detection.ipynb)
 
 This doc outlines how to set up GroundedDINO and Segment Anything (SAM/SAM‑2) locally and run the grounded region extraction pipeline.
 
