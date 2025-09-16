@@ -1,6 +1,7 @@
 # PIKAi — Multimodal RAG and Visual Extraction
 
 [![CI — Colab Stamp](https://github.com/aptyp78/PIKAi/actions/workflows/update-colab-latest.yml/badge.svg?branch=main)](https://github.com/aptyp78/PIKAi/actions/workflows/update-colab-latest.yml)
+[![Last Update](https://img.shields.io/github/last-commit/aptyp78/PIKAi?label=Last%20update&color=blue)](https://github.com/aptyp78/PIKAi/commits)
 
 Open the GroundedDINO + SAM detection notebook in Colab:
 
