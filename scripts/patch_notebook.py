@@ -532,6 +532,42 @@ except Exception as e:
 """
         cells.append(make_code_cell(batch_src))
 
+    # Add a summary cell to report counts and outputs
+    summary_title = '#@title Run Summary — counts and outputs'
+    if not any(c.get('cell_type')=='code' and ''.join(c.get('source') or []).startswith(summary_title) for c in cells):
+        summary_src = summary_title + "\n" + """
+require_start()
+from pathlib import Path
+import json, glob, os
+
+MANIFEST = '/content/full_run_manifest.jsonl'
+DETECT_OUT = '/content/grounded_regions'
+PAGES_DIR = '/content/pages'
+
+images_total = 0
+if Path(MANIFEST).exists():
+  with open(MANIFEST,'r',encoding='utf-8') as f:
+    for line in f:
+      if line.strip():
+        images_total += 1
+
+rendered_pages = len(glob.glob(os.path.join(PAGES_DIR,'**','page-*.png'), recursive=True))
+region_jsons  = len(glob.glob(os.path.join(DETECT_OUT,'**','regions','region-*.json'), recursive=True))
+units = sorted({Path(p).parts[-3] for p in glob.glob(os.path.join(DETECT_OUT,'**','regions','region-*.json'), recursive=True)})
+
+print('--- Run Summary ---')
+print('Images in manifest:', images_total)
+print('Rendered pages PNG:', rendered_pages)
+print('Region JSON files :', region_jsons)
+print('Units (sample)    :', units[:8], ('...' if len(units)>8 else ''))
+print('Local regions root:', DETECT_OUT)
+if 'GCS_BUCKET' in globals():
+  print('GCS regions root  :', f"gs://{GCS_BUCKET}/grounded_regions")
+else:
+  print('GCS regions root  : (set GCS_BUCKET to sync)')
+"""
+        cells.append(make_code_cell(summary_src))
+
     # Add explicit cell to upload cell logs to GCS
     upload_src = '''#@title Upload Cell Logs to GCS
 require_start()
