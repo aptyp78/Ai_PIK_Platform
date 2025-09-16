@@ -1,30 +1,42 @@
-name: Update colab-latest
+name: Stamp notebook and advance colab-latest
 
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'notebooks/**.ipynb'
-      - 'scripts/patch_notebook.py'
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  advance-branch:
+  stamp-and-advance:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+    concurrency:
+      group: colab-stamp-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Move colab-latest to this commit
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Stamp notebook header + links
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # Create the branch if it does not exist, otherwise fast-forward it to current commit
-          if git ls-remote --exit-code --heads origin colab-latest; then
-            echo "Updating existing branch colab-latest to $GITHUB_SHA"
+          python scripts/patch_notebook.py
+      - name: Commit stamped changes (if any)
+        run: |
+          set -e
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "ci: stamp notebook header + links [skip ci]"
+            git push origin HEAD:main
           else
-            echo "Creating branch colab-latest"
+            echo "No changes to commit"
           fi
-          git push origin "$GITHUB_SHA:refs/heads/colab-latest"
-
+      - name: Move colab-latest to current HEAD
+        run: |
+          git push origin HEAD:refs/heads/colab-latest
