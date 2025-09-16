@@ -235,6 +235,24 @@ print('Report to GCS:', REPORT_TO_GCS, 'Bucket:', GCS_BUCKET, 'Run tag:', RUN_TA
                 lines = lines[:1] + ['require_start()\n', '\n'] + lines[1:]
                 c['source'] = lines
 
+    # Normalize dependency installation in "Install Torch + ..." cell to avoid resolver conflicts
+    for c in cells:
+        src = ''.join(c.get('source') or [])
+        if src.startswith('#@title Install Torch + SAM/SAM2 + GroundedDINO'):
+            body = src
+            # 1) Do not upgrade ipython in Colab; ensure jedi/typing_extensions/filelock only
+            body = re.sub(r"!pip -q install --upgrade 'ipython[^\n]+\n", "!pip -q install -U jedi>=0.16 typing_extensions>=4.14.0 filelock>=3.15\n", body)
+            # 2) Pin numpy to <2.1 to satisfy numba; keep >=1.24
+            body = body.replace("!pip -q install 'numpy==2.0.2'\n", "!pip -q install 'numpy<2.1,>=1.24'\n")
+            # 3) Ensure Torch 2.5.1 + cu124 set together
+            body = re.sub(r"!pip -q install --upgrade --force-reinstall torch==[0-9\.]+ torchvision==[0-9\.]+ torchaudio==[0-9\.]+ --index-url https://download.pytorch.org/whl/[a-z0-9]+\n",
+                           "!pip -q install --upgrade --force-reinstall torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu124\n",
+                           body)
+            # 4) Drop xformers strict pin (conflicts with 2.5.1); make optional comment
+            body = re.sub(r"!pip -q install xformers[^\n]*\n", "# xformers optional; skipped by default due to wheel/torch version coupling\n", body)
+            c['source'] = body.splitlines(True)
+            break
+
     # Add explicit cell to upload cell logs to GCS
     upload_src = '''#@title Upload Cell Logs to GCS
 require_start()
@@ -281,7 +299,7 @@ else:
                         lines = src.splitlines(True)
                         if lines and lines[0].lstrip().startswith('#'):
                             if '— commit' in lines[0]:
-                                lines[0] = re.sub(r'(— commit )[^\s]+', r'\1'+sha, lines[0])
+                                lines[0] = re.sub(r'(— commit )[^\s]+', lambda m: m.group(1)+sha, lines[0])
                             else:
                                 lines[0] = lines[0].rstrip()+f' — commit {sha}\n'
                             new = ''.join(lines)
