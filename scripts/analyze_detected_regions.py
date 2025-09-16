@@ -132,6 +132,7 @@ def main():
     ap.add_argument("--all", action="store_true", help="Process all subdirectories found under detected-dir")
     ap.add_argument("--outdir", default="out/visual/regions_detect", help="Where to write region artifacts (same tree)")
     ap.add_argument("--chat-model", default="gpt-4o")
+    ap.add_argument("--skip-existing", action="store_true", help="Skip a region if region-<n>.struct.json already exists")
     args = ap.parse_args()
 
     client = openai_client()
@@ -151,6 +152,11 @@ def main():
                 rid = int(jf.stem.split("-")[-1])
             except Exception:
                 continue
+            if args.skip_existing:
+                struct_path = rdir / f"region-{rid}.struct.json"
+                if struct_path.exists() and struct_path.stat().st_size > 0:
+                    # Skip re-analysis to save tokens/time
+                    continue
             caption, struct = llm_analyze(client, reg.get("text", ""), reg.get("image_b64") or "", args.chat_model)
             # save artifacts
             out_rdir = Path(args.outdir) / unit / "regions"
