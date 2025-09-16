@@ -1,0 +1,30 @@
+name: Update colab-latest
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'notebooks/**.ipynb'
+      - 'scripts/patch_notebook.py'
+
+permissions:
+  contents: write
+
+jobs:
+  advance-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Move colab-latest to this commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Create the branch if it does not exist, otherwise fast-forward it to current commit
+          if git ls-remote --exit-code --heads origin colab-latest; then
+            echo "Updating existing branch colab-latest to $GITHUB_SHA"
+          else
+            echo "Creating branch colab-latest"
+          fi
+          git push origin "$GITHUB_SHA:refs/heads/colab-latest"
+

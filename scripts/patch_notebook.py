@@ -329,23 +329,23 @@ else:
                     c['source'] = new.splitlines(True)
                     break
 
-        # Update Colab badge links to pin current SHA (README, setup doc, notebook header)
-        def _pin_sha_in_text(txt: str) -> str:
+        # Update Colab badge links to use a stable branch `colab-latest`
+        def _use_colab_branch(txt: str) -> str:
             return re.sub(r"(https://colab\.research\.google\.com/github/[^/]+/[^/]+/blob/)(main|[0-9a-fA-F]{7,})/",
-                          r"\1"+sha+"/", txt)
+                          r"\1colab-latest/", txt)
 
         # README.md
         readme = Path('README.md')
         if readme.exists():
             t = readme.read_text(encoding='utf-8')
-            tt = _pin_sha_in_text(t)
+            tt = _use_colab_branch(t)
             if tt != t:
                 readme.write_text(tt, encoding='utf-8')
         # Setup doc
         setup_md = Path('docs/GROUNDED_SAM_SETUP.md')
         if setup_md.exists():
             t = setup_md.read_text(encoding='utf-8')
-            tt = _pin_sha_in_text(t)
+            tt = _use_colab_branch(t)
             if tt != t:
                 setup_md.write_text(tt, encoding='utf-8')
         # Notebook header badge (first markdown cell already loaded in nb)
@@ -353,7 +353,7 @@ else:
             if c.get('cell_type') == 'markdown':
                 src = ''.join(c.get('source') or [])
                 if 'colab-badge.svg' in src:
-                    new = _pin_sha_in_text(src)
+                    new = _use_colab_branch(src)
                     if new != src:
                         c['source'] = new.splitlines(True)
                     break
