@@ -1,5 +1,7 @@
 # GroundedDINO + SAM/SAM‑2 Setup and Pipeline
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aptyp78/PIKAi/blob/main/notebooks/Grounded_DINO_SAM2_Detection.ipynb)
+
 This doc outlines how to set up GroundedDINO and Segment Anything (SAM/SAM‑2) locally and run the grounded region extraction pipeline.
 
 ## 1) Environment
@@ -82,4 +84,3 @@ This produces `out/visual/grounded_regions/<image_stem>/regions/region-*.json` (
 - If packages aren’t installed, the detection script will explain what’s missing and exit gracefully.
 - You can mix detectors: CV (`scripts/cv_segment.py`) or GroundedDINO+SAM. Prefer grounded results when available.
 - The ingestion expects `region-*.facts.jsonl`; if empty, run `scripts/fill_region_facts.py` to create fallback facts from captions.
-
