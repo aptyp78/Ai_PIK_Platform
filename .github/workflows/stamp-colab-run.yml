@@ -5,16 +5,17 @@ on:
     workflows:
       - Stamp notebook and advance colab-latest
       - Promote notebook to colab-stable
-    types:
-      - completed
+    types: [completed]
   workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
   update-readme:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,29 +23,53 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Update timestamp in README
+      - name: Fetch latest successful run times
+        id: fetch
         env:
-          WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
-          UPDATED_AT: ${{ github.event.workflow_run.updated_at }}
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Triggered by workflow: $WORKFLOW_NAME at $UPDATED_AT"
-          marker="COLAB_LATEST_RUN"
-          low=$(echo "$WORKFLOW_NAME" | tr 'A-Z' 'a-z')
-          if echo "$low" | grep -q "stable"; then marker="COLAB_STABLE_RUN"; fi
-          echo "MARKER=$marker" >> $GITHUB_ENV
-          python3 - <<PY
+          python3 - <<'PY'
+import os, json, urllib.request
+repo = os.environ['GH_REPO']
+token = os.environ['GH_TOKEN']
+def latest(workflow_file):
+    url=f'https://api.github.com/repos/{repo}/actions/workflows/{workflow_file}/runs?status=success&per_page=1'
+    req=urllib.request.Request(url, headers={'Authorization': f'Bearer {token}','Accept':'application/vnd.github+json'})
+    with urllib.request.urlopen(req) as r:
+        data=json.load(r)
+    runs = data.get('workflow_runs', [])
+    return runs[0].get('updated_at','N/A') if runs else 'N/A'
+latest_ts = latest('update-colab-latest.yml')
+stable_ts = latest('promote-colab-stable.yml')
+print('latest=', latest_ts)
+print('stable=', stable_ts)
+with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+    f.write(f"latest={latest_ts}\n")
+    f.write(f"stable={stable_ts}\n")
+PY
+
+      - name: Update timestamps in README
+        env:
+          LATEST_TS: ${{ steps.fetch.outputs.latest }}
+          STABLE_TS: ${{ steps.fetch.outputs.stable }}
+        run: |
+          python3 - <<'PY'
 import os, re
 pth = 'README.md'
 txt = open(pth,'r',encoding='utf-8').read()
-marker = os.environ.get('MARKER','COLAB_LATEST_RUN')
-stamp  = os.environ.get('UPDATED_AT','')
-pattern = rf"(<!-- {marker}:START -->)(.*?)(<!-- {marker}:END -->)"
-new = re.sub(pattern, rf"\\1{stamp}\\3", txt, flags=re.S)
+latest = os.environ.get('LATEST_TS','N/A')
+stable = os.environ.get('STABLE_TS','N/A')
+def sub(marker, stamp, s):
+    pattern = rf"(<!-- {marker}:START -->)(.*?)(<!-- {marker}:END -->)"
+    return re.sub(pattern, rf"\\1{stamp}\\3", s, flags=re.S)
+new = sub('COLAB_LATEST_RUN', latest, txt)
+new = sub('COLAB_STABLE_RUN', stable, new)
 if new != txt:
-  open(pth,'w',encoding='utf-8').write(new)
-  print('Updated', marker, 'to', stamp)
+    open(pth,'w',encoding='utf-8').write(new)
+    print('Updated timestamps: latest=', latest, 'stable=', stable)
 else:
-  print('No change for', marker)
+    print('No changes needed')
 PY
 
       - name: Commit changes
@@ -55,6 +80,6 @@ PY
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "docs: update $WORKFLOW_NAME timestamp to $UPDATED_AT [skip ci]"
+            git commit -m "docs: update Colab workflow timestamps in README [skip ci]"
             git push
           fi
