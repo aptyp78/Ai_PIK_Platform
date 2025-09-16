@@ -164,30 +164,10 @@ print('[cell-logger] enabled ->', LOG_JSONL)
     if not any(c.get('cell_type')=='code' and ''.join(c.get('source') or []).startswith('#@title Cell Execution Logger') for c in cells):
         cells.insert(1 if len(cells)>1 else 0, make_code_cell(logger_src))
 
-    # Replace old Detection Parameters cell with echo-only
-    for c in cells:
-        src = ''.join(c.get('source') or [])
-        if src.startswith('#@title Detection Parameters'):
-            echo_src = '''#@title Selected Parameters (echo)
-# This cell only echoes current config defined in the top control cell.
-try:
-    FRAME_NAMES
-except NameError:
-    FRAME_NAMES = []
-try:
-    PROMPTS
-except NameError:
-    PROMPTS = []
-print('START_RUN=', START_RUN)
-print('PDF:', PLAYBOOK_PDF)
-print('PAGES (empty=ALL):', PAGES)
-print('Frames:', FRAME_NAMES)
-print('Prompts:', PROMPTS)
-print('Device:', DEVICE, 'Use SAM2:', USE_SAM2)
-print('Report to GCS:', REPORT_TO_GCS, 'Bucket:', GCS_BUCKET, 'Run tag:', RUN_TAG)
-'''
-            c['source'] = echo_src.splitlines(True)
-            break
+    # Drop legacy parameter echo cells entirely — enumerator + summary replace them
+    cells = [c for c in cells
+             if not (c.get('cell_type') == 'code' and ''.join(c.get('source') or []).startswith('#@title Detection Parameters'))
+             and not (c.get('cell_type') == 'code' and ''.join(c.get('source') or []).startswith('#@title Selected Parameters (echo)'))]
 
     # Modify Render Pages cell: add require_start() and empty-pages logic
     for c in cells:
