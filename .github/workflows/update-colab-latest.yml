@@ -62,8 +62,28 @@ jobs:
           else
             echo "No changes to commit"
           fi
-      - name: Move colab-latest to current HEAD
+      - name: Check if safe to advance colab-latest
+        id: advance
         run: |
-          # Force-advance colab-latest to current main HEAD (this branch is ephemeral)
+          set -e
           git fetch origin colab-latest || true
+          if git show-ref --verify --quiet refs/remotes/origin/colab-latest; then
+            if git merge-base --is-ancestor origin/colab-latest HEAD; then
+              echo "ok=true" >> $GITHUB_OUTPUT
+            else
+              echo "ok=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            # no remote branch yet — safe to create
+            echo "ok=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Move colab-latest to current HEAD
+        if: steps.advance.outputs.ok == 'true'
+        run: |
           git push --force-with-lease origin HEAD:refs/heads/colab-latest
+
+      - name: Skip advancing colab-latest (it has newer commits)
+        if: steps.advance.outputs.ok != 'true'
+        run: |
+          echo "Skip advancing: colab-latest has newer commits than main. Please merge or promote manually."
