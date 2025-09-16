@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import sys
 
 NB_PATH = Path('notebooks/Grounded_DINO_SAM2_Detection.ipynb')
 
@@ -15,8 +16,24 @@ def make_code_cell(src: str):
         "source": src.splitlines(True),
     }
 
+def _load_notebook_or_die(path: Path):
+    txt = path.read_text(encoding='utf-8')
+    # Detect git conflict markers early — they break JSON parser
+    for marker in ('\n<<<<<<< ', '\n=======\n', '\n>>>>>>> '):
+        if marker in txt:
+            print(f"[error] Notebook has unresolved merge conflict markers: '{marker.strip()}' found in {path}", file=sys.stderr)
+            print("[hint] Resolve conflicts: keep notebook from the intended branch (e.g., colab-latest) and re-run.", file=sys.stderr)
+            sys.exit(2)
+    try:
+        return json.loads(txt)
+    except json.JSONDecodeError as e:
+        print(f"[error] Failed to parse notebook JSON at {path}: {e}", file=sys.stderr)
+        print("[hint] The file might be partially merged or corrupted. Resolve conflicts and ensure valid .ipynb.", file=sys.stderr)
+        sys.exit(2)
+
+
 def main():
-    nb = json.loads(NB_PATH.read_text())
+    nb = _load_notebook_or_die(NB_PATH)
     cells = nb.get('cells', [])
 
     control_src = '''#@title Run Control and Parameters

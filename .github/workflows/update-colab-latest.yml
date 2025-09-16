@@ -22,6 +22,24 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Validate notebook JSON and conflicts
+        run: |
+          python - << 'PY'
+          import sys, json, re
+          from pathlib import Path
+          p=Path('notebooks/Grounded_DINO_SAM2_Detection.ipynb')
+          t=p.read_text(encoding='utf-8')
+          for m in ('\n<<<<<<< ', '\n=======\n', '\n>>>>>>> '):
+            if m in t:
+              print(f"[error] Unresolved merge conflict marker found: {m.strip()} in {p}")
+              sys.exit(2)
+          try:
+            json.loads(t)
+          except Exception as e:
+            print('[error] Notebook is not valid JSON:', e)
+            sys.exit(2)
+          print('[ok] Notebook JSON validated')
+          PY
       - name: Stamp notebook header + links
         run: |
           python scripts/patch_notebook.py
