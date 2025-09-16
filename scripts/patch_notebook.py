@@ -519,13 +519,17 @@ else:
     if not any(c.get('cell_type')=='code' and ''.join(c.get('source') or []).startswith('#@title Upload Cell Logs to GCS') for c in cells):
         cells.append(make_code_cell(upload_src))
 
-    # Stamp notebook's own last-change commit (not HEAD) into title and NOTEBOOK_VERSION
+    # Stamp notebook's own last-change commit (not HEAD) into title and NOTEBOOK_VERSION (and date)
     try:
         sha = subprocess.check_output(
             ['git','log','-n','1','--pretty=format:%h','--', str(NB_PATH)], text=True
         ).strip()
+        date_iso = subprocess.check_output(
+            ['git','log','-n','1','--pretty=format:%cI','--', str(NB_PATH)], text=True
+        ).strip()
     except Exception:
         sha = ''
+        date_iso = ''
 
     if sha:
         # Update top markdown title line `— commit <sha>`
@@ -533,16 +537,17 @@ else:
             if c.get('cell_type') == 'markdown':
                 src = ''.join(c.get('source') or [])
                 if 'GroundedDINO + SAM' in src:
-                    # replace if present
-                    new = re.sub(r'(— commit )[0-9a-fA-F]{7,}', lambda m: m.group(1)+sha, src)
+                    # replace commit and (optionally) add/update date
+                    new = re.sub(r'(— commit )[0-9a-fA-F]{7,}(?: — [^\n]+)?', lambda m: (m.group(1)+sha + (f' — {date_iso}' if date_iso else '')), src)
                     if new == src:
                         # append to first header line
                         lines = src.splitlines(True)
                         if lines and lines[0].lstrip().startswith('#'):
                             if '— commit' in lines[0]:
-                                lines[0] = re.sub(r'(— commit )[^\s]+', lambda m: m.group(1)+sha, lines[0])
+                                # update hash and add date if missing
+                                lines[0] = re.sub(r'(— commit )[^\s]+(?: — [^\n]+)?', f"\\1{sha}" + (f" — {date_iso}" if date_iso else ''), lines[0])
                             else:
-                                lines[0] = lines[0].rstrip()+f' — commit {sha}\n'
+                                lines[0] = lines[0].rstrip()+f' — commit {sha}' + (f' — {date_iso}' if date_iso else '') + '\n'
                             new = ''.join(lines)
                     c['source'] = new.splitlines(True)
                     break
@@ -553,6 +558,13 @@ else:
                 src = ''.join(c.get('source') or [])
                 if 'NOTEBOOK_VERSION' in src:
                     new = re.sub(r"NOTEBOOK_VERSION\s*=\s*['\"]([^'\"]*)['\"]", f"NOTEBOOK_VERSION = '{sha}'", src)
+                    if 'NOTEBOOK_UPDATED' in new:
+                        new = re.sub(r"NOTEBOOK_UPDATED\s*=\s*['\"]([^'\"]*)['\"]", f"NOTEBOOK_UPDATED = '{date_iso}'", new)
+                    else:
+                        # append a line for updated date
+                        if not new.endswith('\n'):
+                            new += '\n'
+                        new += f"NOTEBOOK_UPDATED = '{date_iso}'\n"
                     c['source'] = new.splitlines(True)
                     break
 
