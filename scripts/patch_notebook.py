@@ -267,6 +267,59 @@ print('Report to GCS:', REPORT_TO_GCS, 'Bucket:', GCS_BUCKET, 'Run tag:', RUN_TA
             c['source'] = body.splitlines(True)
             break
 
+    # Insert a Compatibility Fixes cell after Auth to pin versions (typing_extensions, filelock, numpy, gcsfs/fsspec) and print versions
+    compat_src = '''#@title Compatibility Fixes (pip pins)
+require_start()
+# Do not upgrade ipython (Colab expects ipython==7.34.0)
+# Remove xformers if present (version coupling to torch; optional)
+!pip -q uninstall -y xformers || true
+
+# Pin compatible versions for known conflicts
+!pip -q install -U \
+  "typing_extensions>=4.14.0,<5" \
+  "filelock>=3.15" \
+  "numpy<2.1,>=1.24" \
+  gcsfs==2025.3.0 fsspec==2025.3.0
+
+from importlib import metadata as md
+def _ver(name, mod=None):
+    try:
+        return md.version(name)
+    except Exception:
+        try:
+            m = __import__(mod or name)
+            return getattr(m, "__version__", "unknown")
+        except Exception:
+            return "not installed"
+print(
+  "[compat]",
+  "jedi=", _ver("jedi"),
+  "typing_extensions=", _ver("typing_extensions","typing_extensions"),
+  "filelock=", _ver("filelock"),
+  "numpy=", _ver("numpy"),
+  "gcsfs=", _ver("gcsfs"),
+  "fsspec=", _ver("fsspec"),
+)
+'''
+    # Insert only if not present already
+    if not any(c.get('cell_type')=='code' and ''.join(c.get('source') or []).startswith('#@title Compatibility Fixes') for c in cells):
+        insert_at = None
+        for idx, c in enumerate(cells):
+            src = ''.join(c.get('source') or [])
+            if c.get('cell_type')=='code' and src.startswith('#@title Auth + gcsfuse setup'):
+                insert_at = idx + 1
+                break
+        if insert_at is None:
+            # fallback: put before Install Torch cell
+            for idx, c in enumerate(cells):
+                src = ''.join(c.get('source') or [])
+                if c.get('cell_type')=='code' and src.startswith('#@title Install Torch + SAM/SAM2 + GroundedDINO'):
+                    insert_at = idx
+                    break
+        if insert_at is None:
+            insert_at = len(cells)
+        cells.insert(insert_at, make_code_cell(compat_src))
+
     # Add explicit cell to upload cell logs to GCS
     upload_src = '''#@title Upload Cell Logs to GCS
 require_start()
@@ -329,23 +382,23 @@ else:
                     c['source'] = new.splitlines(True)
                     break
 
-        # Update Colab badge links to pin current SHA (README, setup doc, notebook header)
-        def _pin_sha_in_text(txt: str) -> str:
+        # Update Colab badge links to use a stable branch `colab-latest`
+        def _use_colab_branch(txt: str) -> str:
             return re.sub(r"(https://colab\.research\.google\.com/github/[^/]+/[^/]+/blob/)(main|[0-9a-fA-F]{7,})/",
-                          r"\1"+sha+"/", txt)
+                          lambda m: m.group(1) + 'colab-latest/', txt)
 
         # README.md
         readme = Path('README.md')
         if readme.exists():
             t = readme.read_text(encoding='utf-8')
-            tt = _pin_sha_in_text(t)
+            tt = _use_colab_branch(t)
             if tt != t:
                 readme.write_text(tt, encoding='utf-8')
         # Setup doc
         setup_md = Path('docs/GROUNDED_SAM_SETUP.md')
         if setup_md.exists():
             t = setup_md.read_text(encoding='utf-8')
-            tt = _pin_sha_in_text(t)
+            tt = _use_colab_branch(t)
             if tt != t:
                 setup_md.write_text(tt, encoding='utf-8')
         # Notebook header badge (first markdown cell already loaded in nb)
@@ -353,7 +406,7 @@ else:
             if c.get('cell_type') == 'markdown':
                 src = ''.join(c.get('source') or [])
                 if 'colab-badge.svg' in src:
-                    new = _pin_sha_in_text(src)
+                    new = _use_colab_branch(src)
                     if new != src:
                         c['source'] = new.splitlines(True)
                     break
