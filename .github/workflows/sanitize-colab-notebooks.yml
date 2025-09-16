@@ -1,0 +1,39 @@
+name: Sanitize Colab Notebooks
+
+on:
+  push:
+    branches:
+      - colab-latest
+      - colab-stable
+    paths:
+      - '**/*.ipynb'
+
+permissions:
+  contents: write
+
+jobs:
+  sanitize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sanitize notebooks
+        run: |
+          python3 scripts/sanitize_notebooks.py || true
+          git status --porcelain
+
+      - name: Commit and push changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git config user.name "github-actions"
+            git config user.email "github-actions@users.noreply.github.com"
+            git add -A
+            git commit -m "ci: sanitize notebooks for GitHub preview (drop metadata.widgets) [skip ci]"
+            git push
+          fi
+
