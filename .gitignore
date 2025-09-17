@@ -16,3 +16,8 @@ venv/
 data/
 outputs/
 logs/
+
+# Local artifacts
+.venv/
+Secrets/
+out/
