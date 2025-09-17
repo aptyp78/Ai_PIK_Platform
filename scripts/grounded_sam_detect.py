@@ -12,25 +12,15 @@ def require_packages():
         import groundingdino  # type: ignore
     except Exception:
         missing.append("groundingdino")
-    # Try SAM v1 first
-    has_sam = True
-    try:
-        import segment_anything  # type: ignore
-    except Exception:
-        has_sam = False
-    # Try SAM2
-    has_sam2 = True
     try:
         import sam2  # type: ignore
     except Exception:
-        has_sam2 = False
-    if (not has_sam) and (not has_sam2):
-        missing.append("segment-anything or sam2")
+        missing.append("sam2")
     if missing:
         raise SystemExit(
-            "Missing packages: "
+            "Отсутствуют пакеты: "
             + ", ".join(missing)
-            + "\nSee docs/GROUNDED_SAM_SETUP.md for install instructions."
+            + "\nУстановите их и повторите запуск (без fallback)."
         )
 
 
@@ -65,36 +55,69 @@ def resolve_model_paths(grounding_model_cli: str, sam_model_cli: str) -> Tuple[s
 
 
 def detect_regions_with_grounded(images: List[Path], outdir: Path, grounding_model: str, sam_model: str, prompts: List[str]):
-    # NOTE: This is a placeholder to keep the script light.
-    # In a real setup, you would:
-    #  1) Load GroundingDINO model and tokenizer
-    #  2) For each image and prompt, run detection -> boxes + scores
-    #  3) Load SAM/SAM2 and for each box run segmentation -> mask/crop
-    #  4) Save out JSON per region (bbox + base64 crop) under <stem>/regions/
-    # Here we only ensure directory structure and provide a helpful message.
+    import numpy as np  # type: ignore
+    from PIL import Image  # type: ignore
+    import groundingdino
+    from groundingdino.util.inference import Model  # type: ignore
+    # SAM2 — используем для уточнения масок опционально (здесь извлекаем крест-валидационно bbox → crop)
+    try:
+        import sam2  # type: ignore
+    except Exception:
+        raise SystemExit("sam2 не установлен — включите установку sam-2 и повторите запуск.")
+
+    if not grounding_model:
+        raise SystemExit("Не указан путь к GroundingDINO весам (--grounding-model или $GROUNDING_MODEL)")
+    # Конфиг ищем внутри пакета
+    import os
+    cfg_path = os.path.join(os.path.dirname(groundingdino.__file__), "config", "GroundingDINO_SwinT_OGC.py")
+    if not os.path.exists(cfg_path):
+        raise SystemExit(f"Не найден конфиг GroundingDINO: {cfg_path}")
+
+    gdino = Model(model_config_path=cfg_path, model_checkpoint_path=grounding_model)
+
     for img in images:
-        stem = img.stem
-        rdir = outdir / stem / "regions"
+        rdir = outdir / img.stem / "regions"
         rdir.mkdir(parents=True, exist_ok=True)
-        # Fallback: create a single region that is the whole image, so downstream can run
-        try:
-            import PIL.Image as Image  # type: ignore
-        except Exception:
-            Image = None
-        b64 = None
-        if Image is not None:
-            im = Image.open(img).convert("RGB")
+        # Запросы: объединяем в одну строку с разделителем '.' как в примерах GDINO
+        caption = ". ".join(prompts)
+        boxes, logits, phrases = gdino.predict_with_caption(
+            image=str(img),
+            captions=caption,
+            box_threshold=0.3,
+            text_threshold=0.25,
+        )
+        # boxes в формате xyxy (нормализованные), преобразуем в пиксели
+        im = Image.open(img).convert("RGB")
+        W, H = im.size
+        boxes = np.array(boxes)
+        if boxes.size == 0:
+            raise SystemExit(f"GroundingDINO не нашёл регионов для {img}. Проверьте prompts/пороги/веса.")
+        for i, b in enumerate(boxes, start=1):
+            x0, y0, x1, y1 = b
+            # масштабирование
+            bx0 = max(0, int(x0 * W))
+            by0 = max(0, int(y0 * H))
+            bx1 = min(W, int(x1 * W))
+            by1 = min(H, int(y1 * H))
+            w, h = max(1, bx1 - bx0), max(1, by1 - by0)
+            crop = im.crop((bx0, by0, bx1, by1))
             import io
 
             buf = io.BytesIO()
-            im.save(buf, format="PNG")
+            crop.save(buf, format="PNG")
             b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
-        with open(rdir / "region-1.json", "w", encoding="utf-8") as f:
-            f.write(
-                '{"bbox": {"x": 0, "y": 0, "w": -1, "h": -1}, "text": "", "image_b64": "%s"}'
-                % (b64 or "")
-            )
-        print(f"[INFO] Placeholder region created for {img} -> {rdir}/region-1.json")
+            with open(rdir / f"region-{i}.json", "w", encoding="utf-8") as f:
+                f.write(
+                    json.dumps(
+                        {
+                            "bbox": {"x": bx0, "y": by0, "w": w, "h": h},
+                            "text": "",
+                            "image_b64": b64,
+                        },
+                        ensure_ascii=False,
+                    )
+                )
+        print(f"[OK] {img}: сохранено {len(boxes)} регионов -> {rdir}")
 
 
 def main():
@@ -109,22 +132,14 @@ def main():
     out = Path(args.outdir)
     out.mkdir(parents=True, exist_ok=True)
 
-    # Check packages; print clear guidance if missing
-    try:
-        require_packages()
-    except SystemExit as e:
-        print(str(e))
-        print("Proceeding with placeholder full-image region output so downstream can be tested.")
+    # Требуем рабочие пакеты (без fallback)
+    require_packages()
 
     g_path, s_path, kind = resolve_model_paths(args.grounding_model, args.sam_model)
-    if g_path:
-        print(f"[INFO] GroundingDINO weights: {g_path}")
-    else:
-        print("[WARN] GroundingDINO weights not set. Using placeholder region output.")
-    if s_path:
-        print(f"[INFO] {'SAM2' if kind=='sam2' else 'SAM v1'} weights: {s_path}")
-    else:
-        print("[WARN] SAM/SAM2 weights not set. Using placeholder region output.")
+    if not g_path:
+        raise SystemExit("Не указан путь к весам GroundingDINO (--grounding-model или $GROUNDING_MODEL)")
+    if not s_path:
+        raise SystemExit("Не указан путь к весам SAM/SAM2 (--sam-model или $SAM_MODEL)")
 
     images = [Path(p) for p in args.images]
     detect_regions_with_grounded(images, out, g_path, s_path, args.prompts)
