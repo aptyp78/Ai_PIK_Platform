@@ -1,17 +1,18 @@
-# Local env and secrets
-.env
-Secrets/
-
-# Python
-.venv/
-venv/
+# Python / Jupyter
+.ipynb_checkpoints/
 __pycache__/
 *.pyc
 
-# Mac / editor
-.DS_Store
+# Environments / Editors
+venv/
+.env
 .vscode/
+.idea/
 
-# Generated artifacts
-out/
-/tmp/
+# OS
+.DS_Store
+
+# Data / Artifacts (adjust as needed)
+data/
+outputs/
+logs/
