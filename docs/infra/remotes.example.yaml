@@ -1,0 +1,20 @@
+# Copy to docs/infra/remotes.yaml on the main machine and fill values.
+# Do NOT commit docs/infra/remotes.yaml (kept local).
+
+targets:
+  - name: main
+    alias: mainbox           # SSH alias defined in ~/.ssh/config
+    host: 203.0.113.10       # optional if alias resolves; can be omitted
+    port: 22                 # optional; default 22
+    user: ubuntu             # login user (if not set in ssh config)
+    identity_file: ~/.ssh/id_rsa  # path to private key (if not set in ssh config)
+
+    workdir: /srv/projects/AiPIK   # path to this repo on remote host
+    python: /opt/conda/bin/python  # preferred interpreter on remote
+    conda_prefix: /opt/conda       # optional; used to activate env
+    env_file: /srv/projects/AiPIK/.env  # optional; exported before runs
+
+    notes: |
+      - No outbound internet; use proxies if needed
+      - Write outputs under /srv/projects/AiPIK/out
+

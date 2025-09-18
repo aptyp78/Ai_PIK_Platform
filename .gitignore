@@ -21,3 +21,4 @@ logs/
 .venv/
 Secrets/
 out/
+docs/infra/remotes.yaml
