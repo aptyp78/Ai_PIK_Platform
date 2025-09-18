@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Auto-push current branch after commit, setting upstream if missing.
+set -euo pipefail
+branch=$(git rev-parse --abbrev-ref HEAD)
+upstream=$(git rev-parse --symbolic-full-name --abbrev-ref @{u} 2>/dev/null || true)
+if [ -z "$upstream" ]; then
+  git push -u origin "$branch" || true
+else
+  git push || true
+fi
+
