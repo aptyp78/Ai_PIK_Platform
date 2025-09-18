@@ -89,17 +89,14 @@ def main():
     ap = argparse.ArgumentParser(description="Generate an HTML review of visual regions (images+captions+struct)")
     ap.add_argument("--out", default="eval/visual_review.html")
     ap.add_argument("--pages-dir", default="out/visual/playbook")
-    ap.add_argument("--regions-detect", default="out/visual/regions_detect")
-    ap.add_argument("--regions-cv", default="out/visual/cv_regions")
-    ap.add_argument("--regions-frames", default="out/visual/cv_frames")
+    ap.add_argument("--regions-detect", default="out/visual/grounded_regions",
+                    help="Directory with grounded (non-CV) detected regions: <unit>/regions/region-*.json")
     ap.add_argument("--inline", action="store_true", help="Embed images into HTML as base64 to make it self-contained")
     args = ap.parse_args()
 
-    pages = collect_regions(Path(args.pages_dir))
+    # Only grounded/true detected regions are shown; CV is deprecated
     reg_detect = collect_regions(Path(args.regions_detect))
-    reg_cv = collect_regions(Path(args.regions_cv))
-    reg_frames = collect_regions(Path(args.regions_frames))
-    render_html(Path(args.out), [("CV Regions (Playbook)", reg_cv), ("CV Regions (Frames)", reg_frames), ("Detected Regions", reg_detect)], inline_images=args.inline)
+    render_html(Path(args.out), [("Detected Regions (Grounded)", reg_detect)], inline_images=args.inline)
 
 
 if __name__ == "__main__":

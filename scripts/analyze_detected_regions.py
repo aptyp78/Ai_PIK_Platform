@@ -48,6 +48,18 @@ def ensure_png(path: Path, caption: str, text: str) -> None:
         y += 40
     im.save(path)
 
+def ocr_from_b64(image_b64: str) -> str:
+    try:
+        import io
+        from PIL import Image  # type: ignore
+        import pytesseract  # type: ignore
+        data = base64.b64decode(image_b64)
+        im = Image.open(io.BytesIO(data)).convert("RGB")
+        txt = pytesseract.image_to_string(im)
+        return txt.strip()
+    except Exception:
+        return ""
+
 
 def _postprocess_struct(obj: Dict[str, Any]) -> Dict[str, Any]:
     # Normalize common variants into our schema
@@ -65,46 +77,60 @@ def _postprocess_struct(obj: Dict[str, Any]) -> Dict[str, Any]:
     return out
 
 
+def _is_gpt5(model: str) -> bool:
+    try:
+        return str(model).strip().lower().startswith("gpt-5")
+    except Exception:
+        return False
+
+
 def llm_analyze(client, text: str, image_b64: str, model: str) -> (str, Dict[str, Any]):
     content = []
     if image_b64:
         data_url = f"data:image/png;base64,{image_b64}"
         content.append({"type": "image_url", "image_url": {"url": data_url}})
     if text:
-        content.append({"type": "text", "text": f"Region OCR/Text:\n{text[:4000]}"})
+        content.append({"type": "text", "text": f"Region OCR/Text (may be noisy):\n{text[:4000]}"})
 
     sys = (
         "You are a precise vision+text analyst. For the region, produce: "
         "(1) a concise caption (1–2 sentences) and (2) a STRICT JSON object describing the artifact."
     )
     # caption
-    cap = client.chat.completions.create(
-        model=model,
-        temperature=0.1,
-        messages=[
+    cap_kwargs = {
+        "model": model,
+        "messages": [
             {"role": "system", "content": sys},
             {"role": "user", "content": content + [{"type": "text", "text": "Task 1: Return a 1-2 sentence caption."}]},
         ],
-    )
+    }
+    if not _is_gpt5(model):
+        cap_kwargs["temperature"] = 0.1
+    cap = client.chat.completions.create(**cap_kwargs)
     caption = (cap.choices[0].message.content or "").strip()
 
     # struct
     struct_instr = (
         "Task 2: Return ONLY a JSON object with this schema: "
-        "{artifact_type: 'Canvas'|'Assessment'|'Diagram', Canvas?: {layers?: string[], components?: string[], personas?: string[], journey?: string[], relations?: string[]}, "
-        "Assessment?: {pillars?: {Operational?:any, Security?:any, Reliability?:any, Performance?:any, Cost?:any}, criteria?: string[]}, "
-        "Diagram?: {entities?: string[], edges?: string[], legend?: string[], groups?: string[]}}. "
-        "For Canvas.layers, use ONLY this set of canonical names if applicable: ['Engagement','Intelligence','Infrastructure','Ecosystem Connectivity']."
+        "{artifact_type: 'Canvas'|'Assessment'|'Diagram', "
+        " Canvas?: {layers?: string[], components?: string[], personas?: string[], journey?: string[], relations?: string[]}, "
+        " Assessment?: {pillars?: {Operational?:any, Security?:any, Reliability?:any, Performance?:any, Cost?:any}, criteria?: string[]}, "
+        " Diagram?: {entities?: string[], edges?: string[], legend?: string[], groups?: string[]}, "
+        " Tagging?: {DoubleLoop?: 'Discover'|'Launch'|'Growth'|'Scale', Level?: 'Portfolio(L1)'|'Market(L2)'|'Platform(L3)', Role?: 'Orchestrator'|'Producer'|'Partner(Enabler)'|'Consumer', Zone?: string, VisualObject?: string, Sustainability?: {People?:boolean, Planet?:boolean, Profit?:boolean, SDG?: string[]}}, "
+        " CanvasName?: string, Integration?: {Horizontal?: string[], Vertical?: string[]} } "
+        "Use ONLY canonical Canvas.layers if applicable: ['Engagement','Intelligence','Infrastructure','Ecosystem Connectivity']."
     )
-    st = client.chat.completions.create(
-        model=model,
-        temperature=0.1,
-        response_format={"type": "json_object"},
-        messages=[
+    st_kwargs = {
+        "model": model,
+        "messages": [
             {"role": "system", "content": sys},
             {"role": "user", "content": content + [{"type": "text", "text": struct_instr}]},
         ],
-    )
+    }
+    if not _is_gpt5(model):
+        st_kwargs["temperature"] = 0.1
+        st_kwargs["response_format"] = {"type": "json_object"}
+    st = client.chat.completions.create(**st_kwargs)
     raw = (st.choices[0].message.content or "{}").strip()
     try:
         struct = json.loads(raw)
@@ -171,12 +197,18 @@ def main():
                 rid = int(jf.stem.split("-")[-1])
             except Exception:
                 continue
+            # optional OCR if region text absent
+            reg_text = reg.get("text", "") or ""
+            if not reg_text and reg.get("image_b64"):
+                ocr = ocr_from_b64(reg.get("image_b64") or "")
+                if ocr:
+                    reg_text = ocr
             if args.skip_existing:
                 struct_path = rdir / f"region-{rid}.struct.json"
                 if struct_path.exists() and struct_path.stat().st_size > 0:
                     # Skip re-analysis to save tokens/time
                     continue
-            caption, struct = llm_analyze(client, reg.get("text", ""), reg.get("image_b64") or "", args.chat_model)
+            caption, struct = llm_analyze(client, reg_text, reg.get("image_b64") or "", args.chat_model)
             # save artifacts
             out_rdir = Path(args.outdir) / unit / "regions"
             out_rdir.mkdir(parents=True, exist_ok=True)

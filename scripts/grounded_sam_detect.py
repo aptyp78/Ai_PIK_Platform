@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import argparse
 import base64
+import json
+import math
 import os
 from pathlib import Path
 from typing import List, Tuple
@@ -106,17 +108,42 @@ def detect_regions_with_grounded(images: List[Path], outdir: Path, grounding_mod
             buf = io.BytesIO()
             crop.save(buf, format="PNG")
             b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+            # GDINO confidence (sigmoid of logit)
+            try:
+                logit = float(logits[i - 1])
+                conf = 1.0 / (1.0 + math.exp(-logit))
+            except Exception:
+                logit, conf = None, None
+            phrase = None
+            try:
+                phrase = phrases[i - 1]
+            except Exception:
+                pass
+
+            # Layout metrics and coarse zone
+            cx = (bx0 + bx1) / 2.0 / W
+            cy = (by0 + by1) / 2.0 / H
+            wr = w / float(W)
+            hr = h / float(H)
+            def zone_from_center(cx, cy):
+                # 3x3 grid
+                col = 0 if cx < 1/3 else (1 if cx < 2/3 else 2)
+                row = 0 if cy < 1/3 else (1 if cy < 2/3 else 2)
+                names = [["top-left", "top", "top-right"],
+                         ["left", "center", "right"],
+                         ["bottom-left", "bottom", "bottom-right"]]
+                return names[row][col]
+            layout = {"cx": cx, "cy": cy, "w_rel": wr, "h_rel": hr, "zone": zone_from_center(cx, cy)}
+
+            rec = {
+                "bbox": {"x": bx0, "y": by0, "w": w, "h": h},
+                "text": "",
+                "image_b64": b64,
+                "gdino": {"logit": logit, "conf": conf, "phrase": phrase},
+                "layout": layout,
+            }
             with open(rdir / f"region-{i}.json", "w", encoding="utf-8") as f:
-                f.write(
-                    json.dumps(
-                        {
-                            "bbox": {"x": bx0, "y": by0, "w": w, "h": h},
-                            "text": "",
-                            "image_b64": b64,
-                        },
-                        ensure_ascii=False,
-                    )
-                )
+                f.write(json.dumps(rec, ensure_ascii=False))
         print(f"[OK] {img}: сохранено {len(boxes)} регионов -> {rdir}")
 
 
