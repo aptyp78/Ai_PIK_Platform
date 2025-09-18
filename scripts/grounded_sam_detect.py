@@ -57,6 +57,7 @@ def resolve_model_paths(grounding_model_cli: str, sam_model_cli: str) -> Tuple[s
 def detect_regions_with_grounded(images: List[Path], outdir: Path, grounding_model: str, sam_model: str, prompts: List[str]):
     import numpy as np  # type: ignore
     from PIL import Image  # type: ignore
+    Image.MAX_IMAGE_PIXELS = None
     import groundingdino
     from groundingdino.util.inference import Model  # type: ignore
     # SAM2 — используем для уточнения масок опционально (здесь извлекаем крест-валидационно bbox → crop)
@@ -80,18 +81,57 @@ def detect_regions_with_grounded(images: List[Path], outdir: Path, grounding_mod
         rdir.mkdir(parents=True, exist_ok=True)
         # Запросы: объединяем в одну строку с разделителем '.' как в примерах GDINO
         caption = ". ".join(prompts)
-        boxes, logits, phrases = gdino.predict_with_caption(
-            image=str(img),
-            captions=caption,
-            box_threshold=0.3,
-            text_threshold=0.25,
-        )
+        boxes_normalized = True
+        try:
+            boxes, logits, phrases = gdino.predict_with_caption(
+                image=str(img),
+                captions=caption,
+                box_threshold=0.3,
+                text_threshold=0.25,
+            )
+        except TypeError:
+            # Современные версии groundingdino используют новый API и возвращают детекции + confidence.
+            import cv2  # type: ignore
+
+            boxes_normalized = False
+            image_bgr = cv2.imread(str(img))
+            if image_bgr is None:
+                raise SystemExit(f"Не удалось прочитать изображение: {img}")
+            detections, phrases = gdino.predict_with_caption(
+                image=image_bgr,
+                caption=caption,
+                box_threshold=0.3,
+                text_threshold=0.25,
+            )
+            if detections is None or detections.is_empty():
+                boxes = []
+                logits = []
+            else:
+                boxes = detections.xyxy.astype(float)
+                conf_arr = getattr(detections, "confidence", None)
+                confidences = conf_arr.tolist() if conf_arr is not None else []
+                logits = []
+                for conf in confidences:
+                    c = float(conf)
+                    # Нормализуем вероятность и переводим обратно в логит.
+                    if c <= 0.0:
+                        logits.append(float('-inf'))
+                    elif c >= 1.0:
+                        logits.append(float('inf'))
+                    else:
+                        logits.append(math.log(c / (1.0 - c)))
+        phrases = list(phrases) if phrases is not None else []
         # boxes в формате xyxy (нормализованные), преобразуем в пиксели
         im = Image.open(img).convert("RGB")
         W, H = im.size
         boxes = np.array(boxes)
+        if boxes.size > 0 and not boxes_normalized:
+            boxes = boxes.astype(float)
+            boxes[:, [0, 2]] /= float(W)
+            boxes[:, [1, 3]] /= float(H)
         if boxes.size == 0:
-            raise SystemExit(f"GroundingDINO не нашёл регионов для {img}. Проверьте prompts/пороги/веса.")
+            print(f"[warn] GroundingDINO не нашёл регионов для {img}; пропускаем файл")
+            continue
         for i, b in enumerate(boxes, start=1):
             x0, y0, x1, y1 = b
             # масштабирование
