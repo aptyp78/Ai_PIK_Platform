@@ -426,7 +426,7 @@ def main():
     ap.add_argument("--pages", nargs="*", type=int, help="Numeric pages to process (optional)")
     ap.add_argument("--all", action="store_true", help="Process all subdirectories found under detected-dir")
     ap.add_argument("--outdir", default="out/visual/regions_detect", help="Where to write region artifacts (same tree)")
-    ap.add_argument("--chat-model", default="gpt-4o")
+    ap.add_argument("--chat-model", default="gpt-5-mini")
     ap.add_argument("--skip-existing", action="store_true", help="Skip a region if region-<n>.struct.json already exists")
     ap.add_argument("--profile", default="auto", choices=["auto", "discover", "growth", "governance"], help="Weighting profile (auto = infer from Tagging/keywords)")
     ap.add_argument("--synonyms", default="config/semantic_synonyms.yaml", help="Path to synonyms YAML for canonicalization and text cues")

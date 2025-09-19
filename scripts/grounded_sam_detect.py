@@ -11,18 +11,15 @@ from typing import List, Tuple, Dict, Any
 def require_packages():
     missing = []
     try:
-        import groundingdino  # type: ignore
+        import groundingdino  # type: ignore  # noqa: F401
     except Exception:
         missing.append("groundingdino")
-    try:
-        import sam2  # type: ignore
-    except Exception:
-        missing.append("sam2")
+    # sam/sam2 и opencv используем опционально; их отсутствие не блокирует запуск (есть эвристики)
     if missing:
         raise SystemExit(
             "Отсутствуют пакеты: "
             + ", ".join(missing)
-            + "\nУстановите их и повторите запуск (без fallback)."
+            + "\nУстановите их и повторите запуск."
         )
 
 

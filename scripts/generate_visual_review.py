@@ -73,9 +73,11 @@ def _img_tag(path: str, inline: bool) -> str:
         return "<div class='meta'>(image unavailable)</div>"
 
 
-def render_html(out: Path, datasets, inline_images: bool = False):
+def render_html(out: Path, datasets, inline_images: bool = False, auto_refresh: int = 0):
     with open(out, "w", encoding="utf-8") as f:
         f.write("<!doctype html><meta charset='utf-8'><title>Visual Review</title>")
+        if auto_refresh and auto_refresh > 0:
+            f.write(f"<meta http-equiv='refresh' content='{int(auto_refresh)}'>")
         f.write("<style>body{font-family:sans-serif} .grid{display:grid;grid-template-columns:320px 1fr;gap:16px;margin:16px 0;border-top:1px solid #ddd;padding-top:16px} img{max-width:300px;border:1px solid #ccc} .meta{color:#555;font-size:12px} .cap{margin:8px 0} .summary{margin:8px 0;padding:6px 8px;background:#f7f7f7;border:1px solid #e3e3e3;display:inline-block}</style>")
         f.write("<h1>Visual Review</h1>")
         for title, pages in datasets:
@@ -139,13 +141,14 @@ def main():
     ap.add_argument("--regions-detect", default="out/visual/grounded_regions",
                     help="Directory with grounded (non-CV) detected regions: <unit>/regions/region-*.json")
     ap.add_argument("--inline", action="store_true", help="Embed images into HTML as base64 to make it self-contained")
+    ap.add_argument("--auto-refresh", type=int, default=0, help="Add meta refresh tag (seconds) for live updates")
     ap.add_argument("--min-score", type=float, default=0.0, help="Filter regions with AutoScore below this value")
     ap.add_argument("--tier", default="", choices=["", "Major", "Secondary", "Hint"], help="Filter by AutoTier")
     args = ap.parse_args()
 
     # Only grounded/true detected regions are shown; CV is deprecated
     reg_detect = collect_regions(Path(args.regions_detect), min_score=args.min_score, tier=args.tier)
-    render_html(Path(args.out), [("Detected Regions (Grounded)", reg_detect)], inline_images=args.inline)
+    render_html(Path(args.out), [("Detected Regions (Grounded)", reg_detect)], inline_images=args.inline, auto_refresh=args.auto_refresh)
 
 
 if __name__ == "__main__":
