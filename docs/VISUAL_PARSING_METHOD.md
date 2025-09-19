@@ -31,6 +31,8 @@
 
 6) Нормализация и факты
 - Канонизация: переименование столпов/слоёв (Pillars/Layers) к фиксированным именам.
+- PVStack (канон слоёв Canvas): `Experience, Interactions, Data, Infrastructure`.
+- Синонимы для канонизации и текстовых подсказок берём из `config/semantic_synonyms.yaml`.
 - Выдача фактографики в JSONL‑виде: triples `{subject, predicate, object, tags}`.
 
 7) Индексация
@@ -46,9 +48,27 @@
 - Для диалоговых/сложных канвасов полезно подмешивать OCR‑фразы в подсказку к LLM, но избегать прямого копирования длинного текста.
 - Для больших схем оптимальна итеративная детекция: сначала крупные блоки (diagram/canvas/table), затем узлы/стрелки.
 - Параметры порогов GroundedDINO подбираются под конкретный корпус.
-- Маски SAM‑2 повышают качество нарезки, но для RAG‑фактов достаточно bbox+crop.
+ - Маски SAM‑2 повышают качество нарезки, но для RAG‑фактов достаточно bbox+crop. В детекторе сохраняем `mask_stats` (solidity, fill_ratio, edge_density, s2) — пока эвристика по crop; при наличии SAM2 используйте реальные маски.
+
+## Confidence и веса (по весовой политике)
+- Сигналы уверенности: `s₁=DINO`, `s₂=SAM2/контур`, `s₃=Текст(OCR)`, `s₄=Макет` (каждый в [0;1]).
+- Профили (веса сигналов):
+  - Discover/Launch: `0.45, 0.15, 0.30, 0.10`
+  - Growth/Scale: `0.55, 0.25, 0.15, 0.05`
+  - Governance/Риски: `0.40, 0.20, 0.35, 0.05`
+- Агрегат уверенности: `Confidence_visual = s₁*w₁ + s₂*w₂ + s₃*w₃ + s₄*w₄`.
+- Итоговый вес тега: `Weight_final = Weight_base * Confidence_visual * (1 + bonuses - penalties)`; отсечка [0;1].
+- Пороги фиксации: Major≥0.70 · Secondary≥0.60 · Hint≥0.55.
+
+Примечания:
+- Профиль определяется автоматически из `Tagging.DoubleLoop` (Discover/Launch, Growth/Scale) или по ключевым словам (Governance/Risk); можно переопределить CLI `--profile`.
+- Контекстные надбавки: 3P/SDG `+0.1`; при наличии Role/Zone `+0.02/+0.02`; стоп‑фактор: «дырявый» контур + отсутствие лексики `−0.2`.
+
+## Конфигурация
+ - Синонимы (PVStack, роли, объекты, ключевые слова): `config/semantic_synonyms.yaml`.
+ - База весов 50 объектов: `config/visual_objects_weights.yaml` (машиночитаемое зеркало policy, значения можно уточнять со временем).
+ - CLI для анализа: `python scripts/analyze_detected_regions.py --profile auto --synonyms config/semantic_synonyms.yaml --weights config/visual_objects_weights.yaml`.
 
 ## Публикация артефактов
 - `gs://pik-artifacts-dev/grounded_regions/<unit>/regions/region-*.{json,png,caption.txt,struct.json,facts.jsonl}`
 - Keep‑политика: `models/` — не удалять при общем клине результатов.
-

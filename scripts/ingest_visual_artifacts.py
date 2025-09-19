@@ -44,11 +44,16 @@ CANONICAL_PILLARS = {
 }
 
 CANONICAL_LAYERS = {
-    "engagement": "Engagement",
-    "intelligence": "Intelligence",
+    # PVStack canonical layers + back-compat synonyms
+    "experience": "Experience",
+    "interactions": "Interactions",
+    "data": "Data",
     "infrastructure": "Infrastructure",
-    "ecosystem": "EcosystemConnectivity",
-    "ecosystem connectivity": "EcosystemConnectivity",
+    # legacy synonyms
+    "engagement": "Experience",
+    "intelligence": "Data",
+    "ecosystem connectivity": "Interactions",
+    "ecosystem": "Interactions",
 }
 
 
@@ -114,6 +119,30 @@ def _infer_struct_tags(struct: Dict) -> Set[str]:
         if isinstance(dg.get("edges"), list) and dg.get("edges"):
             tags.add("Relation")
         tags.add("Diagram")
+    # Extended Tagging from semantic portfolio
+    tg = struct.get("Tagging")
+    if isinstance(tg, dict):
+        dl = tg.get("DoubleLoop")
+        if isinstance(dl, str) and dl:
+            tags.add(f"DoubleLoop/{dl}")
+        lvl = tg.get("Level")
+        if isinstance(lvl, str) and lvl:
+            tags.add(f"Level/{lvl}")
+        role = tg.get("Role")
+        if isinstance(role, str) and role:
+            tags.add(f"Role/{role}")
+        zone = tg.get("Zone")
+        if isinstance(zone, str) and zone:
+            tags.add(f"Zone/{zone}")
+        vobj = tg.get("VisualObject")
+        if isinstance(vobj, str) and vobj:
+            tags.add(vobj)
+        sust = tg.get("Sustainability")
+        if isinstance(sust, dict):
+            tags.add("Sustainability")
+            for k, v in sust.items():
+                if v:
+                    tags.add(f"3P/{k}")
     return tags
 
 
@@ -241,6 +270,17 @@ def main():
                             try:
                                 st = json.loads(struct_path.read_text(encoding="utf-8"))
                                 tags_set.update(_infer_struct_tags(st))
+                            except Exception:
+                                pass
+                        # also read region JSON for layout/zone if available
+                        reg_json = reg_dir / f"region-{rid_int}.json"
+                        if reg_json.exists():
+                            try:
+                                rj = json.loads(reg_json.read_text(encoding="utf-8"))
+                                layout = rj.get("layout") or {}
+                                z = layout.get("zone")
+                                if isinstance(z, str) and z:
+                                    tags_set.add(f"Layout/{z}")
                             except Exception:
                                 pass
                     tags = sorted(tags_set)

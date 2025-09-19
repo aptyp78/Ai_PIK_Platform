@@ -28,7 +28,9 @@ fi
 if [ -f .env ]; then
   set -a; . ./.env; set +a
 fi
+# Ensure writable TMPDIR for OCR on remote
+mkdir -p /tmp/tess_tmp
+export TMPDIR=/tmp/tess_tmp
 echo "[vast-4090] Running: $remote_cmd"
 eval "$remote_cmd"
 '"
-

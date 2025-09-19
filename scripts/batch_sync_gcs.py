@@ -11,7 +11,6 @@ import argparse
 import os
 import shutil
 import subprocess
-import sys
 from pathlib import Path
 
 
@@ -39,7 +38,7 @@ def main() -> None:
         print("Neither gsutil nor gcloud found. Install Google Cloud SDK on the remote host.")
         print("curl https://sdk.cloud.google.com | bash && exec -l $SHELL")
         print("Then: gcloud init && gcloud auth application-default login && gcloud components install gsutil")
-        sys.exit(1)
+        return
 
     ensure_dir(Path(args.playbooks_dst))
     ensure_dir(Path(args.frames_dst))

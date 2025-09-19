@@ -1,9 +1,0 @@
-{
-  "python": "3.12.11 (main, Jun  4 2025, 08:56:18) [GCC 11.4.0]",
-  "platform": "Linux-6.1.123+-x86_64-with-glibc2.35",
-  "hostname": "c0cca4e9abcb",
-  "device_req": "auto",
-  "torch": "2.5.1+cu124",
-  "cuda": "12.4",
-  "cuda_available": true
-}

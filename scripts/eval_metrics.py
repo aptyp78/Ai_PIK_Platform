@@ -104,6 +104,13 @@ def main():
     # Tag weights via env or defaults
     tag_weights_env = os.environ.get('TAG_WEIGHTS')
     tag_weights = {"Canvas": 1.06, "Assessment": 1.05, "Diagram": 1.04, "Pillar": 1.06, "Layer": 1.05}
+    if not tag_weights_env and Path('tags/weights.json').exists():
+        try:
+            j = json.loads(Path('tags/weights.json').read_text(encoding='utf-8'))
+            if isinstance(j, dict):
+                tag_weights.update({str(k): float(v) for k, v in j.items()})
+        except Exception:
+            pass
     if tag_weights_env:
         for tok in tag_weights_env.split(','):
             if '=' in tok:

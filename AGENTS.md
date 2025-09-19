@@ -44,6 +44,7 @@ How to Run
   - bash: set -a; [ -f .env ] && source .env; set +a
 - Execute notebooks headless:
   - jupyter nbconvert --to notebook --execute --inplace notebooks/Grounded_DINO_SAM2_Detection_v2.ipynb
+  - jupyter nbconvert --to notebook --execute --inplace notebooks/IPMK_Orchestrator_v3.ipynb
 - Or run scripts directly (examples):
   - python scripts/render_pages.py --pdf "$PDF_PATH" --pages 42 45 --outdir "$OUT_PAGES" --dpi 150
   - python scripts/cv_segment.py --images-dir "$OUT_PAGES" --pages 42 45 --outdir out/visual/cv_regions
@@ -52,6 +53,47 @@ How to Run
   - python scripts/ingest_visual_artifacts.py --source-json "$JSON_PATH" --regions-dir "$OUT_DET" --out "$INDEX_PATH" --model "$EMB_MODEL"
   - python scripts/generate_visual_review.py --inline
   - python scripts/eval_metrics.py --index "$INDEX_PATH" --eval eval/queries.jsonl --prefer-visual
+
+Batch (VAST)
+- Sync sources from GCS to local cache (requires gsutil or gcloud):
+  - bash scripts/vast_run.sh "python scripts/batch_sync_gcs.py"
+- Render all PDFs from playbooks/frames at 300 dpi:
+  - bash scripts/vast_run.sh "python scripts/batch_render.py --dpi 300"
+- Run GroundedDINO+SAM2 on all rendered pages:
+  - bash scripts/vast_run.sh "python scripts/batch_gdino_sam2.py --pages-root out/page_images --outdir \"$OUT_DET\" --prompts diagram canvas table legend node arrow"
+- Analyze and ingest results:
+  - bash scripts/vast_run.sh "python scripts/analyze_detected_regions.py --detected-dir \"$OUT_DET\" --all --outdir \"$OUT_DET\" --chat-model \"$CHAT_MODEL\" --skip-existing"
+  - bash scripts/vast_run.sh "python scripts/ingest_visual_artifacts.py --source-json \"$JSON_PATH\" --regions-dir \"$OUT_DET\" --out \"$INDEX_PATH\" --model \"$EMB_MODEL\""
+
+Notebook Orchestrator
+- Interactive: open `notebooks/IPMK_Orchestrator_v3.ipynb` in Remote‑SSH (vast‑4090), then Run All.
+- Headless: `bash scripts/vast_run.sh "jupyter nbconvert --to notebook --execute --inplace notebooks/IPMK_Orchestrator_v3.ipynb"`
+
+Auto Sync (Git)
+- Push on commit (both sides): install hooks via `bash scripts/install_git_hooks.sh`.
+  - The hook auto-pushes the current branch after each commit (sets upstream if missing).
+- Auto-pull on VAST: start lightweight watcher once per session:
+  - `bash scripts/vast_run.sh "nohup bash scripts/auto_sync_pull.sh >> Logs/auto_sync.log 2>&1 & echo $! > Logs/auto_sync.pid"`
+- Stop watcher: `bash scripts/vast_run.sh "kill \$(cat Logs/auto_sync.pid)"` (if running).
+- Notes:
+  - Auto-pull only fast-forwards clean branches (`main` and `machine-<hostname>`).
+  - If local changes exist, it skips and logs a note in `Logs/auto_sync.log`.
+
+Local Auto Sync (no hooks fallback)
+- If your environment blocks executable hooks, use daemons instead:
+  - Start local auto-pull: `nohup bash scripts/auto_sync_pull.sh >> Logs/auto_sync_local.log 2>&1 & echo $! > Logs/auto_sync_local.pid`
+  - Start local auto-push: `nohup bash scripts/auto_sync_push.sh >> Logs/auto_sync_local.log 2>&1 & echo $! > Logs/auto_sync_local_push.pid`
+  - Stop: `kill $(cat Logs/auto_sync_local.pid)`, `kill $(cat Logs/auto_sync_local_push.pid)`
+
+Remote Run (vast-4090)
+- Policy: run all parsing workloads on the remote host `vast-4090` (GroundedDINO+SAM2 and the rest).
+- Wrapper script: use `scripts/vast_run.sh` from your local machine to execute any command on the remote with Conda + .env loaded.
+  - Example: `scripts/vast_run.sh "python scripts/render_pages.py --pdf \"$PDF_PATH\" --pages 42 45 --outdir \"$OUT_PAGES\" --dpi 150"`
+  - Example: `scripts/vast_run.sh "python scripts/analyze_detected_regions.py --detected-dir \"$OUT_DET\" --all --outdir \"$OUT_DET\" --chat-model \"$CHAT_MODEL\" --skip-existing"`
+- Requirements on remote:
+  - `.env` must exist on the remote and may read secrets from `Secrets/` (see `.env.example`).
+  - SSH alias `vast-4090` configured locally (see SSH config example below).
+  - The repo is present at `/root/AiPIK` on the remote.
 
 Notes
 - Ensure out/ is writable. If you run in a new environment, create missing subfolders.

@@ -1,0 +1,113 @@
+# PIK — Base weights for 50 visual objects
+# Keys are case-insensitive (normalized to lower case in code). You can specify
+# Russian and/or English labels; the analyzer will match by exact string after lowering.
+
+VisualObjectsBaseWeight:
+  "контрольная точка (control point)": 1.0
+  "control point": 1.0
+  "матчинг‑контур": 0.9
+  "matching contour": 0.9
+  "ценностное предложение": 0.8
+  "value proposition": 0.8
+  "jtbd‑ядро": 0.8
+  "jtbd": 0.8
+  "карта экосистемы": 0.8
+  "ecosystem map": 0.8
+  "build–buy–partner–join": 0.8
+  "онбординг": 0.8
+  "onboarding": 0.8
+  "пул ценности": 0.7
+  "value pool": 0.7
+  "контур mvp": 0.7
+  "mvp contour": 0.7
+  "модуль платформенного сервиса": 0.7
+  "platform service module": 0.7
+  "позиционирование": 0.7
+  "где играть": 0.7
+  "как побеждать": 0.7
+  "роадмэп 3 горизонтов": 0.6
+  "three horizons roadmap": 0.6
+  "визия платформы": 0.6
+  "кластер предложения": 0.6
+  "сегмент спроса": 0.6
+  "матрица коопетиции": 0.6
+  "соседние рынки": 0.6
+  "ключевой сценарий": 0.7
+  "пакет стимулов": 0.6
+  "витрина/поиск": 0.6
+  "обмен": 0.7
+  "ко‑создание": 0.6
+  "калитка качества": 0.6
+  "рейтинг и отзывы": 0.6
+  "правила и модерация": 0.6
+  "каталог интеграций": 0.6
+  "партнерская программа": 0.6
+  "порог ликвидности": 0.7
+  "воронка активации": 0.7
+  "community‑flywheel": 0.7
+  "карта сетевых эффектов": 0.8
+  "реферальный путь": 0.6
+  "лестницы монетизации": 0.7
+  "трек гео‑экспансии": 0.6
+  "набор сигналов доверия": 0.7
+  "верификация партнера": 0.6
+  "риск‑матрица": 0.6
+  "этическая хартия": 0.6
+  "прозрачность/отчетность": 0.6
+  "здоровье платформы": 0.7
+  "поведенческая сегментация": 0.6
+  "когортная линза": 0.6
+  "операционная модель": 0.6
+  "ключевые компетенции": 0.7
+  "согласование управления": 0.6
+
+  # English mirrors (optional)
+  "quality gate": 0.6
+  "ratings and reviews": 0.6
+  "rules and moderation": 0.6
+  "integrations catalog": 0.6
+  "partner program": 0.6
+  "liquidity threshold": 0.7
+  "activation funnel": 0.7
+  "referral path": 0.6
+  "monetization ladders": 0.7
+  "geo expansion track": 0.6
+  "trust signals set": 0.7
+  "partner verification": 0.6
+  "risk matrix": 0.6
+  "ethics charter": 0.6
+  "transparency/accountability": 0.6
+  "platform health": 0.7
+  "behavioral segmentation": 0.6
+  "cohort lens": 0.6
+  "operating model": 0.6
+  "core competencies": 0.7
+  "management alignment": 0.6
+
+  # Growth & scale (approx until policy specifies exact values)
+  "growth‑loop": 0.8
+  "воронка активации": 0.7
+  "community‑flywheel": 0.7
+  "карта сетевых эффектов": 0.8
+  "nfx map": 0.8
+  "реферальный путь": 0.6
+  "лестницы монетизации": 0.7
+  "трек гео‑экспансии": 0.6
+
+  # Governance & trust
+  "набор сигналов доверия": 0.7
+  "верификация партнера": 0.6
+  "риск‑матрица": 0.6
+  "этическая хартия": 0.6
+  "прозрачность/отчетность": 0.6
+
+  # Data & analytics
+  "data‑flywheel": 0.8
+  "здоровье платформы": 0.7
+  "поведенческая сегментация": 0.6
+  "когортная линза": 0.6
+
+  # Operations
+  "операционная модель": 0.6
+  "ключевые компетенции": 0.7
+  "согласование управления": 0.6

@@ -1,0 +1,203 @@
+# PIK — Semantic synonyms for canonicalization and text cues
+# - PVStack layers canonical names and their synonyms
+# - Roles synonyms
+# - VisualObjects common synonyms (extend as needed)
+# - Keywords used to score s3 (text signal)
+
+PVStack:
+  Experience:
+    - Engagement
+    - User Experience
+    - UX
+  Interactions:
+    - Ecosystem Connectivity
+    - Connectivity
+    - Interaction
+  Data:
+    - Intelligence
+    - Analytics
+    - Insights
+  Infrastructure:
+    - Platform Infrastructure
+    - Infra
+
+Roles:
+  Orchestrator:
+    - Owner
+    - Platform Owner
+  Producer:
+    - Supplier
+    - Provider
+  Partner(Enabler):
+    - Enabler
+    - Partner
+  Consumer:
+    - Customer
+    - User
+
+VisualObjects:
+  Контрольная точка (Control Point):
+    - Control Point
+    - Контрольная точка
+  Матчинг‑контур:
+    - Matching contour
+    - Match loop
+  Ценностное предложение:
+    - Value Proposition
+  JTBD‑ядро:
+    - JTBD core
+    - JTBD
+  Карта экосистемы:
+    - Ecosystem Map
+  Онбординг:
+    - Onboarding
+  Роадмэп 3 горизонтов:
+    - Three Horizons Roadmap
+    - 3 Horizons
+
+# 24 semantic groups (basic synonyms)
+Groups:
+  DoubleLoop:
+    - Discover
+    - Launch
+    - Growth
+    - Scale
+  Levels:
+    - Portfolio
+    - Market
+    - Platform
+  Roles:
+    - Orchestrator
+    - Producer
+    - Partner
+    - Enabler
+    - Consumer
+  PortfolioStrategies:
+    - Market Expansion
+    - Market Integration
+    - Market Focus
+    - Role Dominance
+  Market:
+    - Trends
+    - Value Pools
+    - Control Points
+    - Competition
+    - Coopetition
+  ValueJTBD:
+    - Value Proposition
+    - JTBD
+    - Pain Points
+    - Gains
+    - Unfair Advantage
+  GTM:
+    - Go-to-Market
+    - PLG
+    - Sales Led
+    - Channel
+    - Segmentation
+    - Positioning
+  Monetization:
+    - Pricing
+    - Take Rate
+    - LTV
+    - CAC
+    - ARPU
+    - Churn
+    - Payback
+  Liquidity:
+    - Supply
+    - Demand
+    - Onboarding
+    - Activation
+    - Match Quality
+    - Time To Match
+  NetworkEffects:
+    - NFX
+    - Cross-Side
+    - Same-Side
+    - Data Network Effects
+    - Reputation
+    - Complementors
+  Communities:
+    - Creators
+    - Developers
+    - UGC
+    - Engagement Loops
+    - Advocacy
+  TrustGovernance:
+    - Trust
+    - Reputation System
+    - Governance
+    - Moderation
+    - Fairness
+    - Transparency
+  ExperienceJourney:
+    - On-Platform
+    - Cross-Platform
+    - Frictions
+    - NPS
+    - CSAT
+  PartnershipsOrchestration:
+    - Strategic Partnerships
+    - Partner Program
+    - Integration Partners
+  DataFlywheel:
+    - Data Acquisition
+    - Data Activation
+    - Data Monetization
+    - Flywheel
+  PVStackIntegration:
+    - Functional Integration
+    - Horizontal
+    - Vertical
+  ArchitectureInfrastructure:
+    - Application
+    - Technology
+    - Cloud
+    - Infrastructure
+  SecurityReliability:
+    - Security
+    - Reliability
+    - Performance
+    - Cost
+  ComplianceRisk:
+    - Risk
+    - Compliance
+    - Privacy
+  FinanceUnitEconomics:
+    - Profitability
+    - KPIs
+    - OKRs
+    - Milestones
+  TeamOperations:
+    - Core Competencies
+    - Operating Model
+    - Culture
+  InvestmentFunding:
+    - Investors
+    - Funding
+    - Capital Allocation
+    - ROI
+  ProcessesRoadmaps:
+    - 5E
+    - Roadmap
+    - Management Alignment
+
+Keywords:
+  - liquidity
+  - onboarding
+  - activation
+  - nfx
+  - network effects
+  - pricing
+  - take rate
+  - value
+  - jtbd
+  - roadmap
+  - ecosystem
+  - growth
+  - governance
+  - risk
+  - kpi
+  - data
+  - flywheel
