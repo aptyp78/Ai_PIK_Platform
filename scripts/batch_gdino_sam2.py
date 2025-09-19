@@ -25,7 +25,7 @@ def main() -> None:
     ap.add_argument(
         "--prompts",
         nargs="+",
-        default=["diagram", "canvas", "table", "legend", "node", "arrow"],
+        default=["diagram", "canvas", "table", "legend", "node", "arrow", "textbox"],
         help="Detection prompts",
     )
     ap.add_argument("--grounding-model", default=os.getenv("GROUNDING_MODEL", ""))
@@ -72,4 +72,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

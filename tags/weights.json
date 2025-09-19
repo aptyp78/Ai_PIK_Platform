@@ -111,10 +111,10 @@
   "FI/Horizontal/Retention": 1.04,
   "FI/Horizontal/Revenue": 1.05,
   "FI/Horizontal/Referral": 1.04,
-  "FI/Vertical/Engagement": 1.04,
-  "FI/Vertical/Intelligence": 1.04,
+  "FI/Vertical/Experience": 1.04,
+  "FI/Vertical/Data": 1.04,
   "FI/Vertical/Infrastructure": 1.03,
-  "FI/Vertical/EcosystemConnectivity": 1.04,
+  "FI/Vertical/Interactions": 1.04,
 
   "Architecture/Application": 1.03,
   "Architecture/Business": 1.03,

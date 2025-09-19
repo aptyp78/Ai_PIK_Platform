@@ -9,7 +9,10 @@
   "aliases": {
     "Operational Excellence": "OperationalExcellence",
     "Performance Efficiency": "PerformanceEfficiency",
-    "Ecosystem": "EcosystemConnectivity",
+    "Ecosystem": "PVStack/Interactions",
+    "Ecosystem Connectivity": "PVStack/Interactions",
+    "Engagement": "PVStack/Experience",
+    "Intelligence": "PVStack/Data",
     "Value Proposition": "Value/Proposition",
     "JTBD": "JTBD/Core"
   },
@@ -33,7 +36,7 @@
     "Flywheel/Learn", "Flywheel/Improve", "Flywheel/Value",
     "PVStack/Experience", "PVStack/Interactions", "PVStack/Data", "PVStack/Infrastructure",
     "FI/Horizontal/Awareness", "FI/Horizontal/Acquisition", "FI/Horizontal/Activation", "FI/Horizontal/Retention", "FI/Horizontal/Revenue", "FI/Horizontal/Referral",
-    "FI/Vertical/Engagement", "FI/Vertical/Intelligence", "FI/Vertical/Infrastructure", "FI/Vertical/EcosystemConnectivity",
+    "FI/Vertical/Experience", "FI/Vertical/Interactions", "FI/Vertical/Data", "FI/Vertical/Infrastructure",
     "Architecture/Application", "Architecture/Business", "Architecture/Technology", "Architecture/Integration", "Architecture/Microservices", "Architecture/APIs", "Architecture/Eventing",
     "Security", "Security/Privacy", "Security/Compliance", "Security/IAM", "Security/Encryption", "Security/Audit",
     "Operations/SRE", "Operations/Observability", "Operations/IncidentMgmt", "Operations/ChangeMgmt", "Operations/Release", "Operations/Runbooks",

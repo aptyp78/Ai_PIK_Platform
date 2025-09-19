@@ -44,11 +44,16 @@ CANONICAL_PILLARS = {
 }
 
 CANONICAL_LAYERS = {
-    "engagement": "Engagement",
-    "intelligence": "Intelligence",
+    # PVStack canonical layers + back-compat synonyms
+    "experience": "Experience",
+    "interactions": "Interactions",
+    "data": "Data",
     "infrastructure": "Infrastructure",
-    "ecosystem": "EcosystemConnectivity",
-    "ecosystem connectivity": "EcosystemConnectivity",
+    # legacy synonyms
+    "engagement": "Experience",
+    "intelligence": "Data",
+    "ecosystem connectivity": "Interactions",
+    "ecosystem": "Interactions",
 }
 
 

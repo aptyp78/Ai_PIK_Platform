@@ -5,7 +5,7 @@ import json
 import math
 import os
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 
 
 def require_packages():
@@ -64,9 +64,9 @@ def detect_regions_with_grounded(images: List[Path], outdir: Path, grounding_mod
     from groundingdino.util.inference import Model  # type: ignore
     # SAM2 — используем для уточнения масок опционально (здесь извлекаем крест-валидационно bbox → crop)
     try:
-        import sam2  # type: ignore
+        import sam2  # type: ignore  # noqa: F401
     except Exception:
-        raise SystemExit("sam2 не установлен — включите установку sam-2 и повторите запуск.")
+        sam2 = None  # type: ignore
 
     if not grounding_model:
         raise SystemExit("Не указан путь к GroundingDINO весам (--grounding-model или $GROUNDING_MODEL)")
@@ -77,6 +77,142 @@ def detect_regions_with_grounded(images: List[Path], outdir: Path, grounding_mod
         raise SystemExit(f"Не найден конфиг GroundingDINO: {cfg_path}")
 
     gdino = Model(model_config_path=cfg_path, model_checkpoint_path=grounding_model)
+
+    # Optional: SAM (v1) predictor for real masks; SAM2 hookup can be added similarly
+    _sam_predictor = None
+    _sam_device = "cpu"
+    def _init_sam_predictor(checkpoint_path: str):
+        nonlocal _sam_predictor, _sam_device
+        if _sam_predictor is not None:
+            return _sam_predictor
+        try:
+            import torch  # type: ignore
+            from segment_anything import sam_model_registry, SamPredictor  # type: ignore
+        except Exception:
+            return None
+        model_type = "vit_h"
+        name = checkpoint_path.lower()
+        if "vit_b" in name:
+            model_type = "vit_b"
+        elif "vit_l" in name:
+            model_type = "vit_l"
+        elif "vit_h" in name:
+            model_type = "vit_h"
+        try:
+            sam = sam_model_registry[model_type](checkpoint=checkpoint_path)
+        except Exception:
+            return None
+        _sam_device = "cuda" if torch.cuda.is_available() else "cpu"
+        sam.to(device=_sam_device)
+        _sam_predictor = SamPredictor(sam)
+        return _sam_predictor
+
+    def compute_mask_stats_with_sam(full_im, bx0: int, by0: int, bx1: int, by1: int, checkpoint_path: str) -> Dict[str, Any]:
+        try:
+            import numpy as np  # type: ignore
+            import cv2  # type: ignore
+        except Exception:
+            return {}
+        predictor = _init_sam_predictor(checkpoint_path)
+        if predictor is None:
+            return {}
+        # prepare image for predictor once per image
+        try:
+            import numpy as np  # type: ignore
+            arr = np.array(full_im.convert("RGB"))
+            predictor.set_image(arr)
+            box = np.array([bx0, by0, bx1, by1], dtype=float)
+            masks, scores, _ = predictor.predict(box=box[None, :], multimask_output=False)
+        except Exception:
+            return {}
+        if masks is None or len(masks) == 0:
+            return {}
+        m = masks[0].astype("uint8")  # HxW
+        # Compute stats inside bbox window
+        h, w = m.shape
+        # Clip bbox just in case
+        bx0c, by0c, bx1c, by1c = max(0, bx0), max(0, by0), min(w, bx1), min(h, by1)
+        sub = m[by0c:by1c, bx0c:bx1c]
+        if sub.size == 0:
+            return {}
+        area = float(sub.sum())
+        bbox_area = float(max(1, (bx1c - bx0c) * (by1c - by0c)))
+        fill_ratio = max(0.0, min(1.0, area / bbox_area))
+        try:
+            cnts, _ = cv2.findContours(sub, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            if cnts:
+                cnt = max(cnts, key=cv2.contourArea)
+                hull = cv2.convexHull(cnt)
+                hull_area = float(cv2.contourArea(hull)) if hull is not None else 0.0
+                solidity = 0.0 if hull_area <= 1e-6 else max(0.0, min(1.0, float(cv2.contourArea(cnt)) / hull_area))
+            else:
+                solidity = 0.0
+        except Exception:
+            solidity = 0.0
+        try:
+            edges = cv2.Canny((sub * 255).astype("uint8"), 50, 150)
+            edge_density = float((edges > 0).sum()) / bbox_area
+            edge_density = max(0.0, min(1.0, edge_density))
+        except Exception:
+            edge_density = 0.0
+        edge_quality = max(0.0, min(1.0, 1.0 - edge_density * 0.5))
+        s2 = max(0.0, min(1.0, 0.5 * solidity + 0.4 * fill_ratio + 0.1 * edge_quality))
+        return {"algo": "sam", "fill_ratio": fill_ratio, "solidity": solidity, "edge_density": edge_density, "s2": s2}
+
+    def compute_mask_stats_from_crop(crop_im: Image.Image) -> Dict[str, Any]:
+        # Эвристика по яркости и контурам: solidity, fill_ratio, edge_density → s2
+        try:
+            import cv2  # type: ignore
+            import numpy as np  # type: ignore
+        except Exception:
+            return {"algo": "none"}
+        im = np.array(crop_im.convert("RGB"))
+        h, w = im.shape[:2]
+        if h <= 1 or w <= 1:
+            return {"algo": "none"}
+        gray = cv2.cvtColor(im, cv2.COLOR_RGB2GRAY)
+        gray = cv2.GaussianBlur(gray, (3, 3), 0)
+        # Otsu threshold (возможна инверсия фона)
+        _, th = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        # Выберем вариант с большей заполненностью
+        inv = cv2.bitwise_not(th)
+        def largest_contour(bin_img):
+            cnts, _ = cv2.findContours(bin_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            if not cnts:
+                return None
+            return max(cnts, key=cv2.contourArea)
+        c1 = largest_contour(th)
+        c2 = largest_contour(inv)
+        cnt = c1
+        if c2 is not None and (cv2.contourArea(c2) > (cv2.contourArea(c1) if c1 is not None else 0)):
+            cnt = c2
+        if cnt is None:
+            return {"algo": "heuristic", "fill_ratio": 0.0, "solidity": 0.0, "edge_density": 1.0, "s2": 0.0}
+        area = float(cv2.contourArea(cnt))
+        hull = cv2.convexHull(cnt)
+        hull_area = float(cv2.contourArea(hull)) if hull is not None else 0.0
+        bbox_area = float(w * h)
+        fill_ratio = 0.0 if bbox_area <= 0 else max(0.0, min(1.0, area / bbox_area))
+        solidity = 0.0 if hull_area <= 1e-6 else max(0.0, min(1.0, area / hull_area))
+        edges = cv2.Canny(gray, 50, 150)
+        edge_count = float((edges > 0).sum())
+        # Нормализация: на площадь bbox
+        edge_density = 0.0 if bbox_area <= 0 else max(0.0, min(1.0, edge_count / bbox_area))
+        # Чем больше edge_density, тем хуже контур; преобразуем в [0,1]
+        edge_quality = max(0.0, min(1.0, 1.0 - edge_density * 0.5))
+        s2 = max(0.0, min(1.0, 0.5 * solidity + 0.4 * fill_ratio + 0.1 * edge_quality))
+        return {
+            "algo": "heuristic",
+            "area": area,
+            "hull_area": hull_area,
+            "fill_ratio": fill_ratio,
+            "solidity": solidity,
+            "edge_density": edge_density,
+            "s2": s2,
+        }
+
+    # Note: Реальную SAM2 сегментацию можно подключить при наличии корректного API.
+    # Здесь оставляем приземлённый, но устойчивый эвристический s2, чтобы не ломать запуск.
 
     for img in images:
         rdir = outdir / img.stem / "regions"
@@ -175,12 +311,25 @@ def detect_regions_with_grounded(images: List[Path], outdir: Path, grounding_mod
                 return names[row][col]
             layout = {"cx": cx, "cy": cy, "w_rel": wr, "h_rel": hr, "zone": zone_from_center(cx, cy)}
 
+            # mask quality stats: prefer SAM (if available), otherwise heuristic
+            mask_stats = {}
+            try:
+                if sam_model:
+                    ms = compute_mask_stats_with_sam(im, bx0, by0, bx1, by1, checkpoint_path=sam_model)
+                    if isinstance(ms, dict) and ms:
+                        mask_stats = ms
+            except Exception:
+                mask_stats = {}
+            if not mask_stats:
+                mask_stats = compute_mask_stats_from_crop(crop)
+
             rec = {
                 "bbox": {"x": bx0, "y": by0, "w": w, "h": h},
                 "text": "",
                 "image_b64": b64,
                 "gdino": {"logit": logit, "conf": conf, "phrase": phrase},
                 "layout": layout,
+                "mask_stats": mask_stats,
             }
             with open(rdir / f"region-{i}.json", "w", encoding="utf-8") as f:
                 f.write(json.dumps(rec, ensure_ascii=False))
@@ -193,7 +342,7 @@ def main():
     ap.add_argument("--outdir", default="out/visual/grounded_regions", help="Output root folder")
     ap.add_argument("--grounding-model", default=os.getenv("GROUNDING_MODEL", ""), help="Path to GroundingDINO weights")
     ap.add_argument("--sam-model", default=os.getenv("SAM_MODEL", ""), help="Path to SAM/SAM2 weights")
-    ap.add_argument("--prompts", nargs="*", default=["diagram", "table", "canvas", "legend", "node", "arrow"], help="Text prompts for GroundingDINO")
+    ap.add_argument("--prompts", nargs="*", default=["diagram", "canvas", "table", "legend", "node", "arrow", "textbox"], help="Text prompts for GroundingDINO")
     args = ap.parse_args()
 
     out = Path(args.outdir)
