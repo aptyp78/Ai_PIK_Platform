@@ -70,6 +70,7 @@ def render(metrics: dict, coverage: dict) -> str:
       "<p style='margin-top:16px'>"
       "Links: "
       "<a href='../index.html'>Portal Home</a> · "
+      "<a href='../readiness/index.html'>Readiness</a> · "
       "<a href='../../eval/progress.html' target='_blank'>Eval/Progress</a> · "
       "<a href='../../eval/visual_review.html' target='_blank'>Visual Review</a>"
       "</p>"
