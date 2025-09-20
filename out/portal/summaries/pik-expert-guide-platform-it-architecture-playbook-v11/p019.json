@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Node, Banner, Diagram; A centered teal \"MindSphere\" logo sits on a light gray background, surrounded by teal square nodes, small dots, and connecting lines forming a circuit-like decorative pattern. \n\n{\n  \"artifact_type\": \"logo/banner\",\n  \"pri…",
+  "summary_en": "Node, Banner, Diagram; A centered teal \"MindSphere\" logo sits on a light gray background, surrounded by teal square nodes, small dots, and connecting lines forming a circuit-like decorative pattern. \n\n{\n  \"artifact_type\": \"logo/banner\",\n  \"pri…",
+  "bullets": [
+    "Типы: Node, Banner, Diagram"
+  ],
+  "bullets_en": [
+    "Types: Node, Banner, Diagram"
+  ],
+  "regions": 8,
+  "source": "heuristic"
+}

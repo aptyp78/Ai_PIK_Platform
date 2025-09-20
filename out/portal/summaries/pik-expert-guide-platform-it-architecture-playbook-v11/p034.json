@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Image, Table, Banner; A flat, circular compass-rose icon showing a four-pointed star centered on a small circle. The design uses dark blue-gray shapes on a white background.\n\n{\n  \"artifact_type\": \"icon\",\n  \"subject\": \"compass rose\",\n  \"descri…",
+  "summary_en": "Image, Table, Banner; A flat, circular compass-rose icon showing a four-pointed star centered on a small circle. The design uses dark blue-gray shapes on a white background.\n\n{\n  \"artifact_type\": \"icon\",\n  \"subject\": \"compass rose\",\n  \"descri…",
+  "bullets": [
+    "Типы: Image, Table, Banner"
+  ],
+  "bullets_en": [
+    "Types: Image, Table, Banner"
+  ],
+  "regions": 12,
+  "source": "heuristic"
+}

@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table; Bold turquoise word \"TOMORROW\" in uppercase spans the width of a yellow‑orange rectangular sign with a thin dark border.\n\n{\n  \"type\": \"text_graphic\",\n  \"text\": \"TOMORROW\",\n  \"language\": \"en\",\n  \"bounding_box\": { \"x\": 0, …",
+  "summary_en": "Table; Bold turquoise word \"TOMORROW\" in uppercase spans the width of a yellow‑orange rectangular sign with a thin dark border.\n\n{\n  \"type\": \"text_graphic\",\n  \"text\": \"TOMORROW\",\n  \"language\": \"en\",\n  \"bounding_box\": { \"x\": 0, …",
+  "bullets": [
+    "Типы: Table"
+  ],
+  "bullets_en": [
+    "Types: Table"
+  ],
+  "regions": 10,
+  "source": "heuristic"
+}

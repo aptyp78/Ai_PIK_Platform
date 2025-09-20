@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Image; A handheld cardboard protest sign with bold, hand-painted uppercase letters reading \"WE NEED A CHANGE.\"\n\n{\n  \"artifact_type\": \"handheld sign\",\n  \"text\": \"WE NEED A CHANGE\",\n  \"text_lines\": [\n    \"WE NEED\",\n    \"A CHANGE\"…",
+  "summary_en": "Image; A handheld cardboard protest sign with bold, hand-painted uppercase letters reading \"WE NEED A CHANGE.\"\n\n{\n  \"artifact_type\": \"handheld sign\",\n  \"text\": \"WE NEED A CHANGE\",\n  \"text_lines\": [\n    \"WE NEED\",\n    \"A CHANGE\"…",
+  "bullets": [
+    "Типы: Image"
+  ],
+  "bullets_en": [
+    "Types: Image"
+  ],
+  "regions": 4,
+  "source": "heuristic"
+}

@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Diagram, Table; A central \"Platform\" hub is shown as a dark inner circle surrounded by a larger gray ring and four peripheral gray nodes (group, factory, link, user) inside a white house-shaped outline with a teal outer frame on a dark …",
+  "summary_en": "Diagram, Table; A central \"Platform\" hub is shown as a dark inner circle surrounded by a larger gray ring and four peripheral gray nodes (group, factory, link, user) inside a white house-shaped outline with a teal outer frame on a dark …",
+  "bullets": [
+    "Типы: Diagram, Table"
+  ],
+  "bullets_en": [
+    "Types: Diagram, Table"
+  ],
+  "regions": 8,
+  "source": "heuristic"
+}

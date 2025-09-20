@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Diagram; Diagram mapping AWS services to a platform architecture framework, showing core value layers (Ecosystem, Engagement, Intelligence, Infrastructure), their sublayers, the five architectural pillars, and representative AWS …",
+  "summary_en": "Diagram; Diagram mapping AWS services to a platform architecture framework, showing core value layers (Ecosystem, Engagement, Intelligence, Infrastructure), their sublayers, the five architectural pillars, and representative AWS …",
+  "bullets": [
+    "Типы: Diagram"
+  ],
+  "bullets_en": [
+    "Types: Diagram"
+  ],
+  "regions": 4,
+  "source": "heuristic"
+}

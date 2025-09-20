@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Diagram; The region shows two hexagon labels reading \"ECOSYSTEM\" and \"EXPERIENCE\"; the OCR output mistakenly merged \"EXPERIENCE\" with adjacent prompt text. \n\n{\n  \"artifact_type\": \"text_region\",\n  \"raw_text\": \"ECOSYSTEM\\n\\nEXPERIE…",
+  "summary_en": "Diagram; The region shows two hexagon labels reading \"ECOSYSTEM\" and \"EXPERIENCE\"; the OCR output mistakenly merged \"EXPERIENCE\" with adjacent prompt text. \n\n{\n  \"artifact_type\": \"text_region\",\n  \"raw_text\": \"ECOSYSTEM\\n\\nEXPERIE…",
+  "bullets": [
+    "Типы: Diagram"
+  ],
+  "bullets_en": [
+    "Types: Diagram"
+  ],
+  "regions": 4,
+  "source": "heuristic"
+}

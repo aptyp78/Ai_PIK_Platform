@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table, Diagram; A cluttered tabletop display with scattered papers, small boxes and electronic components, and a partially visible printed label near the back.\n\n{\n  \"type\": \"tabletop display\",\n  \"description\": \"Cluttered table surface c…",
+  "summary_en": "Table, Diagram; A cluttered tabletop display with scattered papers, small boxes and electronic components, and a partially visible printed label near the back.\n\n{\n  \"type\": \"tabletop display\",\n  \"description\": \"Cluttered table surface c…",
+  "bullets": [
+    "Типы: Table, Diagram"
+  ],
+  "bullets_en": [
+    "Types: Table, Diagram"
+  ],
+  "regions": 6,
+  "source": "heuristic"
+}

@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Diagram; Caption: Layered architecture diagram of the MindSphere platform showing applications (Siemens, partners, industry starters) at the top, common application components and an application framework in the middle, core comp…",
+  "summary_en": "Diagram; Caption: Layered architecture diagram of the MindSphere platform showing applications (Siemens, partners, industry starters) at the top, common application components and an application framework in the middle, core comp…",
+  "bullets": [
+    "Типы: Diagram"
+  ],
+  "bullets_en": [
+    "Types: Diagram"
+  ],
+  "regions": 4,
+  "source": "heuristic"
+}

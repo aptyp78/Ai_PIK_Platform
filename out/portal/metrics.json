@@ -1,0 +1,973 @@
+{
+  "generated_at": "2025-09-20T17:52:27.568988Z",
+  "global": {
+    "docs": 33,
+    "pages_total": 191,
+    "pages_done": 191,
+    "frames_total": 0,
+    "frames_done": 0,
+    "regions_total": 25519,
+    "analyzed_regions": 25525,
+    "index_lines": 5910,
+    "ilevel": 0.5665
+  },
+  "documents": [
+    {
+      "slug": "2023-06-fastbreakone-expert-guide-ecosystem-strategy-english",
+      "title": "2023-06 - fastbreakOne - Expert Guide - Ecosystem Strategy  - English",
+      "coverage": {
+        "pages_total": 62,
+        "pages_done": 62,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 8034,
+        "overlays": 64
+      },
+      "analyzed_regions": 8040,
+      "quality": {
+        "median_auto_score": 0.1634,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1634,
+        "mean_confidence": 0.4
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0297,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5939,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "l1-ecosystems-portfolio-map-v01",
+      "title": "L1 - Ecosystems Portfolio Map - v01",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0142,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5516,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "l2-ecosystem-strategy-map",
+      "title": "L2 - Ecosystem Strategy Map",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0213,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5519,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "l2-market-ecosystem-journey",
+      "title": "L2 - Market Ecosystem Journey",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0142,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5516,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "l3-platform-value-network-canvas",
+      "title": "L3 - Platform Value Network Canvas",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0142,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5516,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-expert-guide-platform-it-architecture-assessment-v01",
+      "title": "PIK - Expert Guide - Platform IT Architecture - Assessment - v01",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0213,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5519,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-expert-guide-platform-it-architecture-playbook-v11",
+      "title": "PIK - Expert Guide - Platform IT Architecture - Playbook - v11",
+      "coverage": {
+        "pages_total": 50,
+        "pages_done": 50,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 6694,
+        "overlays": 50
+      },
+      "analyzed_regions": 6694,
+      "quality": {
+        "median_auto_score": 0.1628,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1628,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0285,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5537,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-platform-it-architecture-canvas-table-view-v01",
+      "title": "PIK - Platform IT Architecture Canvas - Table View - v01",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0213,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5519,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-platform-it-architecture-canvases-v01",
+      "title": "PIK - Platform IT Architecture Canvases - v01",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0213,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5519,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-ecosystem-forces-scan-eng",
+      "title": "PIK 5-0 - Ecosystem Forces Scan - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0284,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5522,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-introduction-english",
+      "title": "PIK 5-0 - Introduction - English",
+      "coverage": {
+        "pages_total": 49,
+        "pages_done": 49,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 6561,
+        "overlays": 49
+      },
+      "analyzed_regions": 6561,
+      "quality": {
+        "median_auto_score": 0.163,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.163,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0296,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5538,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-longtail-discovery-eng",
+      "title": "PIK 5-0 - Longtail Discovery - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0213,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5519,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-market-sizing-eng",
+      "title": "PIK 5-0 - Market Sizing - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0213,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5519,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-mvp-eng",
+      "title": "PIK 5-0 - MVP - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0142,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5516,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-network-effects-stimulation-eng",
+      "title": "PIK 5-0 - Network Effects Stimulation - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0142,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5516,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-nfx-reinforcement-engines-eng",
+      "title": "PIK 5-0 - NFX Reinforcement Engines - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0142,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5516,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-platform-aarrr-funnel-eng",
+      "title": "PIK 5-0 - Platform AARRR Funnel - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0213,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5519,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-platform-business-model-eng",
+      "title": "PIK 5-0 - Platform Business Model - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0213,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5519,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-platform-crisis-response-eng",
+      "title": "PIK 5-0 - Platform Crisis Response - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0142,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5516,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-platform-evolution-eng",
+      "title": "PIK 5-0 - Platform Evolution - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0213,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5519,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-platform-experience-eng",
+      "title": "PIK 5-0 - Platform Experience - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0355,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5525,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-platform-monetization-canvas-eng",
+      "title": "PIK 5-0 - Platform Monetization Canvas - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0355,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5525,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-platform-opportunity-eng",
+      "title": "PIK 5-0 - Platform Opportunity - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0142,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5516,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-platform-stakeholder-persona-eng",
+      "title": "PIK 5-0 - Platform Stakeholder Persona - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0213,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5519,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-platform-team-eng",
+      "title": "PIK 5-0 - Platform Team - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0142,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5516,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-platform-usp-eng",
+      "title": "PIK 5-0 - Platform USP - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0284,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5522,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-platform-value-network-canvas-eng",
+      "title": "PIK 5-0 - Platform Value Network Canvas - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0142,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5516,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-problem-prioritization-matrix-eng",
+      "title": "PIK 5-0 - Problem-Prioritization Matrix - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0142,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5516,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-problem-prioritization-matrix-canvas-eng",
+      "title": "PIK 5-0 - Problem-Prioritization Matrix Canvas - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0142,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5516,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-unfair-advantage-eng",
+      "title": "PIK 5-0 - Unfair Advantage - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0213,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5519,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-user-behaviour-eng",
+      "title": "PIK 5-0 - User Behaviour - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0071,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5514,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-value-chain-scan-eng",
+      "title": "PIK 5-0 - Value Chain Scan - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0142,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5516,
+      "rl": "RL0",
+      "unmet": []
+    },
+    {
+      "slug": "pik-5-0-venture-governance-eng",
+      "title": "PIK 5-0 - Venture Governance - ENG",
+      "coverage": {
+        "pages_total": 1,
+        "pages_done": 1,
+        "frames_total": 0,
+        "frames_done": 0,
+        "regions_total": 141,
+        "overlays": 1
+      },
+      "analyzed_regions": 141,
+      "quality": {
+        "median_auto_score": 0.1554,
+        "share_major_secondary": 0.0,
+        "median_final_weight": 0.1554,
+        "mean_confidence": 0.0
+      },
+      "understanding": {
+        "known_types": 1.0,
+        "summary_ru": 1.0,
+        "summary_en": 1.0,
+        "captions_ru": 0.0213,
+        "visual_facts": 0.0
+      },
+      "ilevel": 0.5519,
+      "rl": "RL0",
+      "unmet": []
+    }
+  ]
+}

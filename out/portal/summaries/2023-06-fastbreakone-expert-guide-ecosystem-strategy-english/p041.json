@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Image, Table; A small handwritten note or poster on pale paper with several lines of blurry text and a small red circular sticker near the top-right corner.\n\n{\n  \"artifact_type\": \"handwritten note/poster\",\n  \"shape\": \"rectangular (por…",
+  "summary_en": "Image, Table; A small handwritten note or poster on pale paper with several lines of blurry text and a small red circular sticker near the top-right corner.\n\n{\n  \"artifact_type\": \"handwritten note/poster\",\n  \"shape\": \"rectangular (por…",
+  "bullets": [
+    "Типы: Image, Table"
+  ],
+  "bullets_en": [
+    "Types: Image, Table"
+  ],
+  "regions": 4,
+  "source": "heuristic"
+}

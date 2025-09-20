@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table, Banner, Diagram; A diagonal light-blue banner reading \"Illustrative\" stretches across a light-gray background. The dark-gray text is rotated along the banner and roughly centered.\n\n{\n  \"type\": \"diagonal_banner\",\n  \"text\": \"Illustrative\",…",
+  "summary_en": "Table, Banner, Diagram; A diagonal light-blue banner reading \"Illustrative\" stretches across a light-gray background. The dark-gray text is rotated along the banner and roughly centered.\n\n{\n  \"type\": \"diagonal_banner\",\n  \"text\": \"Illustrative\",…",
+  "bullets": [
+    "Типы: Table, Banner, Diagram"
+  ],
+  "bullets_en": [
+    "Types: Table, Banner, Diagram"
+  ],
+  "regions": 10,
+  "source": "heuristic"
+}

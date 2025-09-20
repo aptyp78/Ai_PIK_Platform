@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table, Image, Diagram; A white wrench and screwdriver crossed on an orange square background, forming a flat icon representing tools, repair, or settings.\n\n{\n  \"type\": \"icon\",\n  \"objects\": [\n    {\n      \"name\": \"wrench\",\n      \"color\": \"white\"…",
+  "summary_en": "Table, Image, Diagram; A white wrench and screwdriver crossed on an orange square background, forming a flat icon representing tools, repair, or settings.\n\n{\n  \"type\": \"icon\",\n  \"objects\": [\n    {\n      \"name\": \"wrench\",\n      \"color\": \"white\"…",
+  "bullets": [
+    "Типы: Table, Image, Diagram"
+  ],
+  "bullets_en": [
+    "Types: Table, Image, Diagram"
+  ],
+  "regions": 10,
+  "source": "heuristic"
+}

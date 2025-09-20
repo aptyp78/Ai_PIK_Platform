@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table, Image; The slide summarizes the Platform Architecture Framework, connecting a left-side Platform Value Stack (Sustainability, Engagement, Intelligence, Infrastructure = OS) to the AWS Well‑Architected Framework on the right. It…",
+  "summary_en": "Table, Image; The slide summarizes the Platform Architecture Framework, connecting a left-side Platform Value Stack (Sustainability, Engagement, Intelligence, Infrastructure = OS) to the AWS Well‑Architected Framework on the right. It…",
+  "bullets": [
+    "Типы: Table, Image"
+  ],
+  "bullets_en": [
+    "Types: Table, Image"
+  ],
+  "regions": 10,
+  "source": "heuristic"
+}

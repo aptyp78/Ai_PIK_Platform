@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Banner, Chart; A teal banner displaying the label \"PLATFORM TYPE\" above a large, bold title that reads \"Sharing Platform\".\n\n{\n  \"artifact_type\": \"banner\",\n  \"background_color\": \"teal\",\n  \"language\": \"en\",\n  \"ocr_text\": \"PLATFORM TYPE\\n…",
+  "summary_en": "Banner, Chart; A teal banner displaying the label \"PLATFORM TYPE\" above a large, bold title that reads \"Sharing Platform\".\n\n{\n  \"artifact_type\": \"banner\",\n  \"background_color\": \"teal\",\n  \"language\": \"en\",\n  \"ocr_text\": \"PLATFORM TYPE\\n…",
+  "bullets": [
+    "Типы: Banner, Chart"
+  ],
+  "bullets_en": [
+    "Types: Banner, Chart"
+  ],
+  "regions": 8,
+  "source": "heuristic"
+}

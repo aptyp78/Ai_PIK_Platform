@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Diagram; Diagram of a layered Airbnb-like platform architecture showing User Interfaces, Platform Services, Data Handling, Core Platform, and underlying AWS services. It highlights service components such as Listing, Pricing, Sea…",
+  "summary_en": "Diagram; Diagram of a layered Airbnb-like platform architecture showing User Interfaces, Platform Services, Data Handling, Core Platform, and underlying AWS services. It highlights service components such as Listing, Pricing, Sea…",
+  "bullets": [
+    "Типы: Diagram"
+  ],
+  "bullets_en": [
+    "Types: Diagram"
+  ],
+  "regions": 4,
+  "source": "heuristic"
+}

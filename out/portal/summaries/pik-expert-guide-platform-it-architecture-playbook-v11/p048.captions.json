@@ -1,0 +1,14 @@
+{
+  "1": {
+    "caption_en": "A small, printed lowercase \"a\" followed by an equals sign and a period appears on a blurred surface. The text is faint and noisy, likely from OCR.\n\n{\"type\":\"text\",\"text\":\"a =.\",\"tokens\":[\"a\",\"=\",\".\"],\"language\":\"unknown\",\"confidence\":0.77,\"notes\":\"Low-resolution and noisy region; OCR transcription may be imperfect.\"}",
+    "caption_ru": "A small, printed lowercase \"a\" followed by an equals sign and a period appears on a blurred surface. The text is faint and noisy, likely from OCR.\n\n{\"type\":\"text\",\"text\":\"a =.\",\"tokens\":[\"a\",\"=\",\".\"],\"language\":\"unknown\",\"confidence\":0.77,\"notes\":\"Low-resolution and noisy region; OCR transcription may be imperfect.\"}"
+  },
+  "2": {
+    "caption_en": "Blurred rectangular sign with partially legible text; the visible OCR reads \"saTask 1: Return a 1-2 sentence caption.\" The sign is low-contrast and largely illegible due to blur.\n\n{\n  \"artifact_type\": \"text_region\",\n  \"raw_ocr\": \"saTask 1: Return a 1-2 sentence caption.\",\n  \"cleaned_transcription\": \"Task 1: Return a 1-2 sentence caption.\",\n  \"transcription_confidence\": \"low\",\n  \"language\": \"en\",\n  \"visual_description\": \"Blurred rectangular sign or label with bold characters; heavy blur and low contrast reduce legibility.\",\n  \"bounding_box\": null,\n  \"notes\": \"Leading 'sa' in raw OCR appears extraneous/noisy; cleaned_transcription is a best-guess correction. Recommend higher-resolution or less blurred image for accurate OCR.\"\n}",
+    "caption_ru": "Blurred rectangular sign with partially legible text; the visible OCR reads \"saTask 1: Return a 1-2 sentence caption.\" The sign is low-contrast and largely illegible due to blur.\n\n{\n  \"artifact_type\": \"text_region\",\n  \"raw_ocr\": \"saTask 1: Return a 1-2 sentence caption.\",\n  \"cleaned_transcription\": \"Task 1: Return a 1-2 sentence caption.\",\n  \"transcription_confidence\": \"low\",\n  \"language\": \"en\",\n  \"visual_description\": \"Blurred rectangular sign or label with bold characters; heavy blur and low contrast reduce legibility.\",\n  \"bounding_box\": null,\n  \"notes\": \"Leading 'sa' in raw OCR appears extraneous/noisy; cleaned_transcription is a best-guess correction. Recommend higher-resolution or less blurred image for accurate OCR.\"\n}"
+  },
+  "3": {
+    "caption_en": "A series of large posters covered in sticky notes and diagrams line a wall for brainstorming and project assessment. The word \"ASSESSMENT\" is prominently displayed across the scene.",
+    "caption_ru": "A series of large posters covered in sticky notes and diagrams line a wall for brainstorming and project assessment. The word \"ASSESSMENT\" is prominently displayed across the scene."
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Diagram; Platform architecture diagram (v4.1) for an Airbnb-like marketplace showing consumers (Traveller), producers (Host) and partners (Cleaning Service) with user activities and a layered architecture of ecosystem, engagement…",
+  "summary_en": "Diagram; Platform architecture diagram (v4.1) for an Airbnb-like marketplace showing consumers (Traveller), producers (Host) and partners (Cleaning Service) with user activities and a layered architecture of ecosystem, engagement…",
+  "bullets": [
+    "Типы: Diagram"
+  ],
+  "bullets_en": [
+    "Types: Diagram"
+  ],
+  "regions": 4,
+  "source": "heuristic"
+}

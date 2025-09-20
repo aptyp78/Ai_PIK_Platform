@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table; IIoT platforms like Siemens MindSphere require tight interplay between cloud, edge, and field/data‑input layers to support analytics, algorithm training, data storage, and real‑time processing. The slide illustrates thes…",
+  "summary_en": "Table; IIoT platforms like Siemens MindSphere require tight interplay between cloud, edge, and field/data‑input layers to support analytics, algorithm training, data storage, and real‑time processing. The slide illustrates thes…",
+  "bullets": [
+    "Типы: Table"
+  ],
+  "bullets_en": [
+    "Types: Table"
+  ],
+  "regions": 4,
+  "source": "heuristic"
+}

@@ -1,0 +1,8 @@
+{
+  "portal_local": "http://127.0.0.1:8000/landing/index.html",
+  "portal_internal": "http://172.17.0.2:8000/landing/index.html",
+  "portal_public": "https://discover-achieve-overcome-alignment.trycloudflare.com",
+  "eval_public": "https://schemes-fish-composition-candy.trycloudflare.com",
+  "eval_progress": "https://schemes-fish-composition-candy.trycloudflare.com/progress.html",
+  "eval_visual_review": "https://schemes-fish-composition-candy.trycloudflare.com/visual_review.html"
+}

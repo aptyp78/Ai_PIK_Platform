@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table, Image; A cluttered tabletop or display surface with scattered papers, small boxes, and various indistinct objects arranged along the table edge.\n\n{\n  \"artifact_type\": \"tabletop display\",\n  \"description\": \"Cluttered table edge w…",
+  "summary_en": "Table, Image; A cluttered tabletop or display surface with scattered papers, small boxes, and various indistinct objects arranged along the table edge.\n\n{\n  \"artifact_type\": \"tabletop display\",\n  \"description\": \"Cluttered table edge w…",
+  "bullets": [
+    "Типы: Table, Image"
+  ],
+  "bullets_en": [
+    "Types: Table, Image"
+  ],
+  "regions": 6,
+  "source": "heuristic"
+}

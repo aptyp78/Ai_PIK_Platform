@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table; Caption: Diagram of Siemens MindSphere architecture showing three stacked layers — MindApps (top), MindSphere platform (middle), and MindConnect (bottom) — illustrating app, cloud, and secure device connectivity. Source:…",
+  "summary_en": "Table; Caption: Diagram of Siemens MindSphere architecture showing three stacked layers — MindApps (top), MindSphere platform (middle), and MindConnect (bottom) — illustrating app, cloud, and secure device connectivity. Source:…",
+  "bullets": [
+    "Типы: Table"
+  ],
+  "bullets_en": [
+    "Types: Table"
+  ],
+  "regions": 6,
+  "source": "heuristic"
+}

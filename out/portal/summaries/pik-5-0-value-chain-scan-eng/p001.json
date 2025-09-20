@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table; Blank value‑chain scan template showing a central \"core value chain\" fishbone with lanes for Enablers, Producers, Distributors, Orchestrators and a Product/Service leading to a Customer/Need area, flanked by Complementar…",
+  "summary_en": "Table; Blank value‑chain scan template showing a central \"core value chain\" fishbone with lanes for Enablers, Producers, Distributors, Orchestrators and a Product/Service leading to a Customer/Need area, flanked by Complementar…",
+  "bullets": [
+    "Типы: Table"
+  ],
+  "bullets_en": [
+    "Types: Table"
+  ],
+  "regions": 4,
+  "source": "heuristic"
+}

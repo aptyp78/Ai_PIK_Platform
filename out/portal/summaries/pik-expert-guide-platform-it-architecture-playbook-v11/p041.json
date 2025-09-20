@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table, Diagram; The diagram illustrates the Platform Architecture Framework, which combines the Platform Value Stack with the AWS Well‑Architected Framework to guide selection and design of IT infrastructure. The left panel lists value …",
+  "summary_en": "Table, Diagram; The diagram illustrates the Platform Architecture Framework, which combines the Platform Value Stack with the AWS Well‑Architected Framework to guide selection and design of IT infrastructure. The left panel lists value …",
+  "bullets": [
+    "Типы: Table, Diagram"
+  ],
+  "bullets_en": [
+    "Types: Table, Diagram"
+  ],
+  "regions": 8,
+  "source": "heuristic"
+}

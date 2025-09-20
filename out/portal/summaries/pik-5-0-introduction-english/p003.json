@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table, Diagram; A teal three-column layout labeled \"01 WHY\", \"02 WHAT\", and \"03 HOW\". Each column poses a question: \"Why we updated the PIK?\", \"What is the new release all about?\", and \"How to get the new release?\".",
+  "summary_en": "Table, Diagram; A teal three-column layout labeled \"01 WHY\", \"02 WHAT\", and \"03 HOW\". Each column poses a question: \"Why we updated the PIK?\", \"What is the new release all about?\", and \"How to get the new release?\".",
+  "bullets": [
+    "Типы: Table, Diagram"
+  ],
+  "bullets_en": [
+    "Types: Table, Diagram"
+  ],
+  "regions": 6,
+  "source": "heuristic"
+}

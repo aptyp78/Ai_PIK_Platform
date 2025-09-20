@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table; A template diagram showing a stakeholders wheel on the left and a horizontal \"Pain Points\" axis running across the page with severity indicated from \"High\" (left) to \"Low\" (right).\n\n{\n  \"artifact_type\": \"ux_template_sect…",
+  "summary_en": "Table; A template diagram showing a stakeholders wheel on the left and a horizontal \"Pain Points\" axis running across the page with severity indicated from \"High\" (left) to \"Low\" (right).\n\n{\n  \"artifact_type\": \"ux_template_sect…",
+  "bullets": [
+    "Типы: Table"
+  ],
+  "bullets_en": [
+    "Types: Table"
+  ],
+  "regions": 4,
+  "source": "heuristic"
+}

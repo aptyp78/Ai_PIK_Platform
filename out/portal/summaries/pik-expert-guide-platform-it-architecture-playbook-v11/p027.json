@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Diagram; This layered architecture diagram shows Lyft’s platform components from user interfaces down through platform services, data handling, core platform, and the AWS services used. It highlights features such as routing/time…",
+  "summary_en": "Diagram; This layered architecture diagram shows Lyft’s platform components from user interfaces down through platform services, data handling, core platform, and the AWS services used. It highlights features such as routing/time…",
+  "bullets": [
+    "Типы: Diagram"
+  ],
+  "bullets_en": [
+    "Types: Diagram"
+  ],
+  "regions": 6,
+  "source": "heuristic"
+}

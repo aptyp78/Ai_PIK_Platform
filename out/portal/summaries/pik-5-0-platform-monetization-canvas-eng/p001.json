@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table; A flat, dark blue-gray inverted triangular chevron with its point facing downward on a white background.\n\n{\"type\":\"inverted isosceles triangle\",\"variant\":\"chevron\",\"orientation\":\"downward\",\"color\":{\"name\":\"dark blue-gray…",
+  "summary_en": "Table; A flat, dark blue-gray inverted triangular chevron with its point facing downward on a white background.\n\n{\"type\":\"inverted isosceles triangle\",\"variant\":\"chevron\",\"orientation\":\"downward\",\"color\":{\"name\":\"dark blue-gray…",
+  "bullets": [
+    "Типы: Table"
+  ],
+  "bullets_en": [
+    "Types: Table"
+  ],
+  "regions": 10,
+  "source": "heuristic"
+}

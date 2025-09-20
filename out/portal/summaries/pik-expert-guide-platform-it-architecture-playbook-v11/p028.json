@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Diagram, Banner; Slide labeled \"SUMMARY\" states that different types of platforms require a different setup of the architecture.\n\n{\n  \"artifact_type\": \"presentation_slide\",\n  \"title\": \"SUMMARY\",\n  \"main_text\": \"Different types of platfor…",
+  "summary_en": "Diagram, Banner; Slide labeled \"SUMMARY\" states that different types of platforms require a different setup of the architecture.\n\n{\n  \"artifact_type\": \"presentation_slide\",\n  \"title\": \"SUMMARY\",\n  \"main_text\": \"Different types of platfor…",
+  "bullets": [
+    "Типы: Diagram, Banner"
+  ],
+  "bullets_en": [
+    "Types: Diagram, Banner"
+  ],
+  "regions": 10,
+  "source": "heuristic"
+}

@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Diagram; A yellow-orange panel listing four German-affiliated names: Matthias Walter, Prof. Julian Kawohl, Mira Radonjic-Simic, and Matthias Lohse, each followed by the country code \"(GER)\".\n\n{\n  \"type\": \"text_block\",\n  \"text\": \"…",
+  "summary_en": "Diagram; A yellow-orange panel listing four German-affiliated names: Matthias Walter, Prof. Julian Kawohl, Mira Radonjic-Simic, and Matthias Lohse, each followed by the country code \"(GER)\".\n\n{\n  \"type\": \"text_block\",\n  \"text\": \"…",
+  "bullets": [
+    "Типы: Diagram"
+  ],
+  "bullets_en": [
+    "Types: Diagram"
+  ],
+  "regions": 8,
+  "source": "heuristic"
+}

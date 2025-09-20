@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Banner, Image, Diagram; A teal banner labeled \"PLATFORM TYPE\" with a large, bold \"C2C Marketplace\" title and a dark border.\n\n{\"artifact_type\":\"text_banner\",\"text_lines\":[\"PLATFORM TYPE\",\"C2C Marketplace\"],\"primary_text\":\"C2C Marketplace\",\"secon…",
+  "summary_en": "Banner, Image, Diagram; A teal banner labeled \"PLATFORM TYPE\" with a large, bold \"C2C Marketplace\" title and a dark border.\n\n{\"artifact_type\":\"text_banner\",\"text_lines\":[\"PLATFORM TYPE\",\"C2C Marketplace\"],\"primary_text\":\"C2C Marketplace\",\"secon…",
+  "bullets": [
+    "Типы: Banner, Image, Diagram"
+  ],
+  "bullets_en": [
+    "Types: Banner, Image, Diagram"
+  ],
+  "regions": 10,
+  "source": "heuristic"
+}

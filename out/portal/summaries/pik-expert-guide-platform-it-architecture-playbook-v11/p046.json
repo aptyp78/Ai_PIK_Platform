@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table, Diagram; Blank \"Platform Architecture v4.1\" template showing three user columns (Consumers, Producers, Partners) and four architecture-stack rows (Ecosystem, Engagement, Intelligence, Infrastructure), with a yellow circled \"3\" ma…",
+  "summary_en": "Table, Diagram; Blank \"Platform Architecture v4.1\" template showing three user columns (Consumers, Producers, Partners) and four architecture-stack rows (Ecosystem, Engagement, Intelligence, Infrastructure), with a yellow circled \"3\" ma…",
+  "bullets": [
+    "Типы: Table, Diagram"
+  ],
+  "bullets_en": [
+    "Types: Table, Diagram"
+  ],
+  "regions": 8,
+  "source": "heuristic"
+}

@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table; A large, bold turquoise word \"TOMORROW\" in uppercase fills a golden-yellow rectangular banner with a thin dark-gray border.\n\n{\"artifact_type\":\"graphic_text\",\"text\":\"TOMORROW\",\"case\":\"uppercase\",\"font\":{\"family\":\"sans-ser…",
+  "summary_en": "Table; A large, bold turquoise word \"TOMORROW\" in uppercase fills a golden-yellow rectangular banner with a thin dark-gray border.\n\n{\"artifact_type\":\"graphic_text\",\"text\":\"TOMORROW\",\"case\":\"uppercase\",\"font\":{\"family\":\"sans-ser…",
+  "bullets": [
+    "Типы: Table"
+  ],
+  "bullets_en": [
+    "Types: Table"
+  ],
+  "regions": 10,
+  "source": "heuristic"
+}

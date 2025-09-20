@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Diagram, Table, Image; A cluttered tabletop covered with small parts, tools, papers, and a small rectangular box toward the right, shown with a blue monochrome tint.\n\n{\n  \"region\": {\n    \"x\": 0.0,\n    \"y\": 0.0,\n    \"width\": 1.0,\n    \"height\": …",
+  "summary_en": "Diagram, Table, Image; A cluttered tabletop covered with small parts, tools, papers, and a small rectangular box toward the right, shown with a blue monochrome tint.\n\n{\n  \"region\": {\n    \"x\": 0.0,\n    \"y\": 0.0,\n    \"width\": 1.0,\n    \"height\": …",
+  "bullets": [
+    "Типы: Diagram, Table, Image"
+  ],
+  "bullets_en": [
+    "Types: Diagram, Table, Image"
+  ],
+  "regions": 8,
+  "source": "heuristic"
+}

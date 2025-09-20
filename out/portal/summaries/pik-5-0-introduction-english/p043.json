@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table, Diagram, Chart; The slide compares a Platform Value Stack (left) and the AWS Well‑Architected Framework (right) with a central \"Platform Architecture Framework\" circle linking them; the left lists value layers (Sustainability, Engagemen…",
+  "summary_en": "Table, Diagram, Chart; The slide compares a Platform Value Stack (left) and the AWS Well‑Architected Framework (right) with a central \"Platform Architecture Framework\" circle linking them; the left lists value layers (Sustainability, Engagemen…",
+  "bullets": [
+    "Типы: Table, Diagram, Chart"
+  ],
+  "bullets_en": [
+    "Types: Table, Diagram, Chart"
+  ],
+  "regions": 12,
+  "source": "heuristic"
+}

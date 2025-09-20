@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Table; A dark office table with an open laptop on top and two swivel chairs tucked underneath. A power cable is visible on the tabletop near the laptop.\n\n{\n  \"artifact_type\": \"office workspace\",\n  \"objects\": [\n    {\n      \"labe…",
+  "summary_en": "Table; A dark office table with an open laptop on top and two swivel chairs tucked underneath. A power cable is visible on the tabletop near the laptop.\n\n{\n  \"artifact_type\": \"office workspace\",\n  \"objects\": [\n    {\n      \"labe…",
+  "bullets": [
+    "Типы: Table"
+  ],
+  "bullets_en": [
+    "Types: Table"
+  ],
+  "regions": 2,
+  "source": "heuristic"
+}

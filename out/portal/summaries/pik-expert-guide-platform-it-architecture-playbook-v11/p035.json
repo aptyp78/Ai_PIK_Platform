@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Banner, Chart, Table; A flat dark blue-gray five-pointed star icon with two short vertical ribbon bars above it, shown on a light background.\n\n{\n  \"artifact_type\": \"icon\",\n  \"object\": \"five-pointed star\",\n  \"color\": \"dark blue-gray\",\n  \"addit…",
+  "summary_en": "Banner, Chart, Table; A flat dark blue-gray five-pointed star icon with two short vertical ribbon bars above it, shown on a light background.\n\n{\n  \"artifact_type\": \"icon\",\n  \"object\": \"five-pointed star\",\n  \"color\": \"dark blue-gray\",\n  \"addit…",
+  "bullets": [
+    "Типы: Banner, Chart, Table"
+  ],
+  "bullets_en": [
+    "Types: Banner, Chart, Table"
+  ],
+  "regions": 10,
+  "source": "heuristic"
+}

@@ -1,0 +1,12 @@
+{
+  "summary_ru": "Image, Diagram; A small, printed lowercase \"a\" followed by an equals sign and a period appears on a blurred surface. The text is faint and noisy, likely from OCR.\n\n{\"type\":\"text\",\"text\":\"a =.\",\"tokens\":[\"a\",\"=\",\".\"],\"language\":\"unknown\"…",
+  "summary_en": "Image, Diagram; A small, printed lowercase \"a\" followed by an equals sign and a period appears on a blurred surface. The text is faint and noisy, likely from OCR.\n\n{\"type\":\"text\",\"text\":\"a =.\",\"tokens\":[\"a\",\"=\",\".\"],\"language\":\"unknown\"…",
+  "bullets": [
+    "Типы: Image, Diagram"
+  ],
+  "bullets_en": [
+    "Types: Image, Diagram"
+  ],
+  "regions": 6,
+  "source": "heuristic"
+}
