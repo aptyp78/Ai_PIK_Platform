@@ -1,0 +1,60 @@
+# Пороговая политика готовности к публикации/поиску (Readiness Levels)
+# Значения по умолчанию; при необходимости настройте под свой датасет.
+
+levels:
+  RL0:
+    min_ilevel: 0.0
+    min_coverage: 0.0
+    decision: "no_publish"
+
+  RL1:
+    min_ilevel: 0.50
+    min_coverage: 0.50           # pages_done/pages_total (или frames_done/frames_total)
+    min_analyzed_ratio: 0.60      # analyzed_regions / regions_total
+    min_major_secondary_share: 0.25
+    min_index_lines: 500
+    decision: "internal_only"
+
+  RL2:
+    min_ilevel: 0.70
+    min_coverage: 0.70
+    min_analyzed_ratio: 0.80
+    min_median_final_weight: 0.60
+    min_known_types: 0.70
+    min_index_lines: 2000
+    decision: "limited_publish"
+
+  RL3:
+    min_ilevel: 0.85
+    min_coverage: 0.95
+    stability_days: 7             # стабильность метрик без деградации
+    require_manual_spotcheck: true
+    decision: "prod_publish"
+
+weights:
+  ilevel:
+    coverage: 0.4
+    quality: 0.4
+    understanding: 0.2
+
+quality_norm:
+  auto_score:
+    min: 0.0
+    max: 1.0
+  final_weight:
+    min: 0.0
+    max: 1.0
+  confidence_visual:
+    min: 0.0
+    max: 1.0
+
+understanding_norm:
+  known_types_min: 0.0
+  known_types_max: 1.0
+  summary_min: 0.0
+  summary_max: 1.0
+  captions_ru_min: 0.0
+  captions_ru_max: 1.0
+  visual_facts_min: 0.0
+  visual_facts_max: 1.0
+

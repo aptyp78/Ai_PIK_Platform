@@ -26,3 +26,7 @@ Notes
 Timestamps (UTC)
 - Latest workflow: <!-- COLAB_LATEST_RUN:START -->N/A<!-- COLAB_LATEST_RUN:END -->
 - Stable workflow: <!-- COLAB_STABLE_RUN:START -->N/A<!-- COLAB_STABLE_RUN:END -->
+
+Additional docs
+- Monitoring portal and readiness (concept + plan): `docs/PORTAL_MONITORING_AND_READINESS.md`
+- Readiness thresholds policy (config): `config/readiness_policy.yaml`
