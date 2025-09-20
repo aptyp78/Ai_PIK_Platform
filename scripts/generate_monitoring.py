@@ -102,9 +102,10 @@ def render(metrics: dict, coverage: dict, trends: dict | None = None) -> str:
       "Links: "
       "<a href='../index.html'>Portal Home</a> · "
       "<a href='../readiness/index.html'>Readiness</a> · "
-      "<a href='../../eval/progress.html' target='_blank'>Eval/Progress</a> · "
-      "<a href='../../eval/visual_review.html' target='_blank'>Visual Review</a>"
+      "<a id='lnk-progress' href='#' target='_blank'>Eval/Progress</a> · "
+      "<a id='lnk-review' href='#' target='_blank'>Visual Review</a>"
       "</p>"
+      "<script>(function(){try{var h=location.hostname||'localhost';var p=location.port||'8000';var ep='8001';if(p && p!=='' && p!=='80'){ep='8001';}var base='http://'+h+':'+ep+'/';var e1=document.getElementById('lnk-progress'); if(e1) e1.href=base+'progress.html'; var e2=document.getElementById('lnk-review'); if(e2) e2.href=base+'visual_review.html';}catch(e){}}</script>"
     )
 
 
