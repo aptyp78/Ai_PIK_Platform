@@ -42,7 +42,7 @@ def copy_if_exists(src: Path, dst: Path) -> bool:
     return False
 
 
-def choose_doc_thumbs(ctx: Ctx, portal_idx: dict, limit: int = 8) -> List[Dict[str, str]]:
+def choose_doc_thumbs(ctx: Ctx, portal_idx: dict, limit: int = 8, html_parent: Path | None = None) -> List[Dict[str, str]]:
     items: List[Dict[str, str]] = []
     for d in portal_idx.get("playbooks", [])[: limit * 2]:
         title = d.get("title") or ""
@@ -57,13 +57,14 @@ def choose_doc_thumbs(ctx: Ctx, portal_idx: dict, limit: int = 8) -> List[Dict[s
             continue
         dst = ctx.portal_root / "assets" / "thumbs" / f"{slug}.png"
         if copy_if_exists(src, dst):
-            items.append({"title": title, "slug": slug, "img": str(dst.relative_to(ctx.portal_root))})
+            rel = Path(os.path.relpath(dst, html_parent if html_parent else ctx.portal_root))
+            items.append({"title": title, "slug": slug, "img": str(rel)})
         if len(items) >= limit:
             break
     return items
 
 
-def gather_overlays(ctx: Ctx, limit: int = 8) -> List[Dict[str, str]]:
+def gather_overlays(ctx: Ctx, limit: int = 8, html_parent: Path | None = None) -> List[Dict[str, str]]:
     cand: List[Tuple[int, Path, str]] = []
     root = ctx.regions_root
     if not root.exists():
@@ -88,7 +89,8 @@ def gather_overlays(ctx: Ctx, limit: int = 8) -> List[Dict[str, str]]:
         # copy to assets
         dst = ctx.portal_root / "assets" / "overlays" / (key.replace("/", "_") + ".png")
         if copy_if_exists(ov, dst):
-            sel.append({"key": key, "img": str(dst.relative_to(ctx.portal_root)), "score": score})
+            rel = Path(os.path.relpath(dst, html_parent if html_parent else ctx.portal_root))
+            sel.append({"key": key, "img": str(rel), "score": score})
         if len(sel) >= limit:
             break
     return sel
@@ -170,6 +172,57 @@ def compute_scatter(ctx: Ctx, limit: int = 300) -> Dict[str, Any]:
         return {"points": [], "note": f"error: {e}"}
 
 
+def collect_top_regions(unified_root: Path, limit: int = 12, portal_root: Path | None = None) -> List[Dict[str, str]]:
+    items: List[Dict[str, str]] = []
+    for slug_dir in sorted([p for p in unified_root.iterdir() if p.is_dir()], key=lambda p: p.name):
+        for item_dir in sorted([p for p in slug_dir.iterdir() if p.is_dir()]):
+            agg = item_dir / 'regions.json'
+            ov = item_dir / 'overlay.png'
+            if not agg.exists() or not ov.exists():
+                continue
+            try:
+                js = json.loads(agg.read_text(encoding='utf-8'))
+                regs = js.get('regions') or []
+            except Exception:
+                regs = []
+            for r in regs:
+                sc = 0.0
+                sc_map = r.get('scoring') or {}
+                if isinstance(sc_map, dict):
+                    sc = float(sc_map.get('final_weight') or 0.0)
+                if sc <= 0 and isinstance(r.get('Tagging'), dict):
+                    try:
+                        sc = float(r['Tagging'].get('AutoScore') or 0.0)
+                    except Exception:
+                        pass
+                t = (r.get('struct_type') or '').strip()
+                items.append({
+                    'slug': slug_dir.name,
+                    'pid': item_dir.name,
+                    'score': sc,
+                    'type': t,
+                    'overlay': str(ov),
+                    'caption': (r.get('caption') or '')[:120],
+                })
+    items.sort(key=lambda d: d.get('score') or 0.0, reverse=True)
+    # Copy overlays into portal assets to ensure same-origin serving
+    top = items[:limit]
+    if portal_root is not None:
+        assets_dir = portal_root / 'assets' / 'top'
+        assets_dir.mkdir(parents=True, exist_ok=True)
+        for it in top:
+            try:
+                src = Path(it['overlay'])
+                dst = assets_dir / f"{it['slug']}_{it['pid']}.png"
+                if src.exists():
+                    import shutil
+                    shutil.copy2(src, dst)
+                    it['overlay_asset'] = str(dst)
+            except Exception:
+                pass
+    return top
+
+
 def render_html(ctx: Ctx, metrics: dict, thumbs: List[Dict[str, str]], overlays: List[Dict[str, str]], scatter: Dict[str, Any]) -> str:
     g = metrics.get("global", {})
     kpi = [
@@ -201,6 +254,8 @@ body{font-family:system-ui,Arial,sans-serif;margin:0;color:#0f172a;line-height:1
 .tag{display:inline-block;padding:2px 8px;background:#eef2ff;color:#3730a3;border-radius:999px;font-size:12px}
 .scatter{border:1px solid #e5e7eb;border-radius:12px;padding:8px;background:#fff}
 .footer{padding:24px 24px;color:#64748b}
+.btn.small{padding:6px 10px;font-size:13px;border:1px solid #cbd5e1;background:#f1f5f9;color:#0f172a}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
 a{color:#0a63c5;text-decoration:none}
 </style>
 """
@@ -255,6 +310,44 @@ a{color:#0a63c5;text-decoration:none}
     # KPIs grid
     kpi_html = "".join([f"<div class='card'><div class='muted'>{k}</div><div style='font-size:28px;font-weight:800'>{v}</div></div>" for k, v in kpi])
 
+    # Top-N regions (by score)
+    top = collect_top_regions(Path('out/visual/regions/gdino_sam2'), limit=12, portal_root=ctx.portal_root)
+    # Make overlay paths relative to landing html
+    top_cards = []
+    for it in top:
+        ov = Path(it.get('overlay_asset') or it['overlay'])
+        rel = Path(os.path.relpath(ov, (ctx.portal_root / 'landing')))
+        top_cards.append(
+            f"<div class='card' data-type='{html_escape(it.get('type') or '')}'>"
+            f"<img class='overlay' src='{html_escape(str(rel))}' loading='lazy'>"
+            f"<div class='muted'>{html_escape(it.get('type') or '')} · {it.get('score'):.2f}</div>"
+            f"<div class='muted'>{html_escape(it.get('caption') or '')}</div>"
+            "</div>"
+        )
+    filters = ["All","Canvas","Diagram","Table","Chart","Legend","Node","Arrow"]
+    chips = "".join([f"<button class='btn small' data-ft='{f if f!='All' else ''}'>{f}</button>" for f in filters])
+    filter_bar = f"<div class='chips'>{chips}</div>"
+    filter_js = """
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const bar = document.querySelector('.chips');
+  if(!bar) return;
+  function apply(ft){
+    document.querySelectorAll('[data-ft]').forEach(b=>b.classList.remove('active'));
+    const btn = Array.from(document.querySelectorAll('[data-ft]')).find(b=>b.getAttribute('data-ft')===ft);
+    if(btn) btn.classList.add('active');
+    document.querySelectorAll(".card[data-type]").forEach(el=>{
+      const t = (el.getAttribute('data-type')||'').toLowerCase();
+      el.style.display = (!ft || t===ft.toLowerCase()) ? '' : 'none';
+    });
+  }
+  bar.addEventListener('click', (e)=>{
+    const t=e.target; if(t && t.dataset && t.dataset.ft!==undefined){ apply(t.dataset.ft||''); }
+  });
+});
+</script>
+"""
+
     return (
         "<!doctype html><meta charset='utf-8'><title>Platform Innovation Kit — Landing</title>"
         + css
@@ -266,6 +359,7 @@ a{color:#0a63c5;text-decoration:none}
         + "<div class='sec'><div class='h'>Что внутри PIK</div><div class='grid'>" + thumbs_html + "</div></div>"
         + "<div class='sec'><div class='h'>Карта тем (эмбеддинги)</div>" + scatter_html + script + "</div>"
         + "<div class='sec'><div class='h'>Хайлайты (оверлеи)</div><div class='grid'>" + overlays_html + "</div></div>"
+        + "<div class='sec'><div class='h'>Top‑N артефактов</div>" + filter_bar + "<div class='grid'>" + "".join(top_cards) + "</div>" + filter_js + "</div>"
         + "<div class='footer'>Сгенерировано локально. Данные: portal_index.json, metrics.json, embeddings.ndjson, overlays.</div>"
     )
 
@@ -302,8 +396,10 @@ def main():
     portal_idx = load_json(ctx.portal_root / "portal_index.json", default={"playbooks": [], "framesets": []})
     metrics = load_json(ctx.portal_root / "metrics.json", default={"global": {}})
 
-    thumbs = choose_doc_thumbs(ctx, portal_idx, limit=8)
-    overlays = gather_overlays(ctx, limit=8)
+    # HTML lives at portal_root/landing/index.html → make assets relative to its parent
+    html_parent = Path(args.out).resolve().parent
+    thumbs = choose_doc_thumbs(ctx, portal_idx, limit=8, html_parent=html_parent)
+    overlays = gather_overlays(ctx, limit=8, html_parent=html_parent)
     scatter = compute_scatter(ctx, limit=300)
 
     html = render_html(ctx, metrics, thumbs, overlays, scatter)
@@ -336,4 +432,3 @@ def rescue_existing_index(idx: Path, new_content: str) -> str:
 
 if __name__ == "__main__":
     main()
-

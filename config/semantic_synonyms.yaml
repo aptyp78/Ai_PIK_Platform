@@ -201,3 +201,57 @@ Keywords:
   - kpi
   - data
   - flywheel
+VisualTypes:
+  Canvas:
+    - canvas
+    - канвас
+    - value network canvas
+    - value network
+    - business model canvas
+    - aarrr
+    - assessment canvas
+  Diagram:
+    - diagram
+    - диаграмма
+    - flow
+    - workflow
+    - process
+    - блок-схема
+    - uml
+    - pipeline
+    - map
+    - карта
+    - graph
+    - граф
+  Table:
+    - table
+    - таблица
+    - row
+    - column
+    - cell
+    - header
+  Chart:
+    - chart
+    - график
+    - гистограмма
+    - pie
+    - line chart
+    - bar chart
+    - axis
+    - ось
+    - ось x
+    - ось y
+  Legend:
+    - legend
+    - легенда
+  Node:
+    - node
+    - узел
+  Arrow:
+    - arrow
+    - стрелка
+  Banner:
+    - cover
+    - banner
+    - заголовок
+    - обложка
