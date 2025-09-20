@@ -211,6 +211,7 @@ def main():
             n = process_page(client, args.model, page_dir, synonyms, args.skip_existing)
             total += 1
             updated += n
+            print(f"[unified] {slug_dir.name}/{page_dir.name}: +{n} regions")
             if args.limit and updated >= args.limit:
                 break
         if args.limit and updated >= args.limit:
@@ -220,4 +221,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

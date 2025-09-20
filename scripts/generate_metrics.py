@@ -263,14 +263,37 @@ def compute_doc_metrics(paths: Paths, slug: str, title: str, cov: Dict[str, Any]
                             pass
             else:
                 known_type_cnt += 1
-            # Facts
-            fp = r.get("facts_path")
-            if fp:
-                try:
-                    if (item_dir / fp).exists():
-                        facts_cnt += 1
-                except Exception:
-                    pass
+            # Also read Tagging/Scoring from regions.json entry (our enrich step)
+            try:
+                tg2 = r.get("Tagging") or {}
+                if isinstance(tg2, dict):
+                    a2 = tg2.get("AutoScore")
+                    if isinstance(a2, (int, float)):
+                        auto_scores.append(float(a2))
+                    t2 = (tg2.get("AutoTier") or "").strip()
+                    if t2:
+                        tiers.append(t2)
+                sc2 = r.get("scoring") or r.get("Scoring") or {}
+                if isinstance(sc2, dict):
+                    fw2 = sc2.get("final_weight")
+                    if isinstance(fw2, (int, float)):
+                        final_weights.append(float(fw2))
+                    cf2 = sc2.get("confidence_visual")
+                    if isinstance(cf2, (int, float)):
+                        confidences.append(float(cf2))
+            except Exception:
+                pass
+            # Facts (inline or file)
+            if r.get('facts'):
+                facts_cnt += 1
+            else:
+                fp = r.get("facts_path")
+                if fp:
+                    try:
+                        if (item_dir / fp).exists():
+                            facts_cnt += 1
+                    except Exception:
+                        pass
             # Captions RU
             rid = r.get("rid")
             if cap_map and rid is not None:

@@ -40,3 +40,14 @@ else
 fi
 
 echo "services started. review: http://$(hostname -I 2>/dev/null | awk '{print $1}'):8000/visual_review.html"
+
+# Optional: ensure public tunnels (Cloudflare) and write endpoints file
+if [ "${TUNNELS:-1}" = "1" ]; then
+  if [ -f scripts/ensure_tunnels.sh ]; then
+    bash scripts/ensure_tunnels.sh || true
+    if [ -f out/portal/endpoints.json ]; then
+      echo "Endpoints written to out/portal/endpoints.json"
+      cat out/portal/endpoints.json || true
+    fi
+  fi
+fi
