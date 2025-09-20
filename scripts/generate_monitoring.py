@@ -54,14 +54,16 @@ def render(metrics: dict, coverage: dict) -> str:
         "</div>"
         "<h2>Documents</h2>"
         "<table>"
-        "<tr><th>Title</th><th>Pages</th><th>Done</th><th>Coverage %</th><th>Overlays</th><th>I-Level</th></tr>"
+        "<tr><th>Title</th><th>Pages</th><th>Done</th><th>Coverage %</th><th>Overlays</th><th>I-Level</th><th>RL</th><th>Unmet</th></tr>"
     + "".join(
         f"<tr><td>{html.escape(d.get('title') or d.get('slug') or '')}</td>"
         f"<td>{d.get('coverage',{}).get('pages_total',0)}</td>"
         f"<td>{d.get('coverage',{}).get('pages_done',0)}</td>"
         f"<td>{pct(d.get('coverage',{}).get('pages_done',0), d.get('coverage',{}).get('pages_total',0)):.1f}</td>"
         f"<td>{d.get('coverage',{}).get('overlays',0)}</td>"
-        f"<td>{(d.get('ilevel') or 0):.2f}</td></tr>"
+        f"<td>{(d.get('ilevel') or 0):.2f}</td>"
+        f"<td>{html.escape(str(d.get('rl') or ''))}</td>"
+        f"<td>{html.escape(','.join(d.get('unmet') or []))}</td></tr>"
         for d in docs2
       )
     + "</table>"
@@ -92,4 +94,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
