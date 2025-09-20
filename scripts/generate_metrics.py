@@ -403,10 +403,12 @@ def write_json(p: Path, obj: dict) -> None:
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Generate metrics.json for monitoring portal (Phase 1: coverage-driven)")
+    ap = argparse.ArgumentParser(description="Generate metrics.json for monitoring portal (Phase 2+: quality & readiness)")
     ap.add_argument("--out", default="out/portal/metrics.json")
     ap.add_argument("--regions-root", default="out/visual/regions/gdino_sam2")
     ap.add_argument("--index", default="out/openai_embeddings.ndjson")
+    ap.add_argument("--log-jsonl", default="Logs/metrics.jsonl", help="Append snapshot to JSONL for trends")
+    ap.add_argument("--no-log", action="store_true", help="Do not append JSONL snapshot")
     args = ap.parse_args()
 
     paths = Paths(
@@ -416,8 +418,27 @@ def main():
         index_path=Path(args.index),
     )
     metrics = build_metrics(paths)
-    write_json(Path(args.out), metrics)
-    print(f"Wrote {args.out}")
+    outp = Path(args.out)
+    write_json(outp, metrics)
+    print(f"Wrote {outp}")
+    # Append snapshot to JSONL for trends
+    if not args.no_log and args.log_jsonl:
+        try:
+            lj = Path(args.log_jsonl)
+            lj.parent.mkdir(parents=True, exist_ok=True)
+            # Keep only compact subset for trends (generated_at + global + per-doc ilevel)
+            subset = {
+                "generated_at": metrics.get("generated_at"),
+                "global": metrics.get("global", {}),
+                "documents": [
+                    {"slug": d.get("slug"), "ilevel": d.get("ilevel"), "regions_total": d.get("coverage", {}).get("regions_total", 0)}
+                    for d in (metrics.get("documents") or [])
+                ],
+            }
+            with lj.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(subset, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
